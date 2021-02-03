@@ -25,9 +25,7 @@ import kotlin.jvm.functions.Function3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 
 public class SlicedMapImpl implements MutableSlicedMap {
 
@@ -47,7 +45,7 @@ public class SlicedMapImpl implements MutableSlicedMap {
         }
 
         if (map == null) {
-            map = new OpenAddressLinearProbingHashTable<>();
+            map = new LinkedHashMap<>();
         }
 
         KeyFMap holder = map.get(key);
