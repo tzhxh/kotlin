@@ -21,9 +21,9 @@ import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
-import org.jetbrains.kotlin.js.config.DceMode
 import org.jetbrains.kotlin.js.config.JSConfigurationKeys
 import org.jetbrains.kotlin.js.config.dceModeToArgumentOfUnreachableMethod
+import org.jetbrains.kotlin.js.config.isNotRemoving
 import org.jetbrains.kotlin.utils.addIfNotNull
 import java.util.*
 
@@ -63,6 +63,10 @@ private fun buildRoots(modules: Iterable<IrModuleFragment>, context: JsIrBackend
         }
 
     rootDeclarations += context.testRoots.values
+
+    if (context.dceMode.isNotRemoving()) {
+        rootDeclarations += context.intrinsics.jsUnreachableDeclaration.owner
+    }
 
     JsMainFunctionDetector.getMainFunctionOrNull(modules.last())?.let { mainFunction ->
         rootDeclarations += mainFunction
@@ -123,12 +127,12 @@ private fun removeUselessDeclarations(
 }
 
 private fun IrDeclaration.processUselessDeclaration(context: JsIrBackendContext): List<IrDeclaration>? {
-    return when (context.dceMode) {
-        DceMode.REMOVAL_DECLARATION -> emptyList()
-        DceMode.LOGGING, DceMode.THROWING_EXCEPTION -> {
+    return when {
+        context.dceMode.isNotRemoving() -> {
             processNonRemoving(context)
             return null
         }
+        else -> emptyList()
     }
 }
 
