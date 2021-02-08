@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
 import org.jetbrains.kotlin.js.config.DceMode
 import org.jetbrains.kotlin.js.config.JSConfigurationKeys
+import org.jetbrains.kotlin.js.config.dceModeToArgumentOfUnreachableMethod
 import org.jetbrains.kotlin.utils.addIfNotNull
 import java.util.*
 
@@ -109,7 +110,7 @@ private fun removeUselessDeclarations(
                 private fun process(container: IrDeclarationContainer) {
                     container.declarations.transformFlat { member ->
                         if (member !in usefulDeclarations) {
-                            member.processNonUsefulDeclaration(context)
+                            member.processUselessDeclaration(context)
                         } else {
                             member.acceptVoid(this)
                             null
@@ -121,29 +122,33 @@ private fun removeUselessDeclarations(
     }
 }
 
-private fun IrDeclaration.processNonUsefulDeclaration(context: JsIrBackendContext): List<IrDeclaration>? {
-    if (context.dceMode == DceMode.REMOVAL_DECLARATION) {
-        return emptyList()
-    }
-
-    if (context.dceMode == DceMode.LOGGING) {
-        val jsUnreachableDeclaration = context.intrinsics.jsUnreachableDeclaration
-        if (this is IrFunction && this.symbol != jsUnreachableDeclaration) {
-            val call = JsIrBuilder.buildCall(
-                target = jsUnreachableDeclaration,
-                type = returnType
-            ).apply {
-                putValueArgument(
-                    0,
-                    JsIrBuilder.buildInt(context.irBuiltIns.intType, 0)
-                )
-            }
-            body?.addFunctionCall(call, this)
+private fun IrDeclaration.processUselessDeclaration(context: JsIrBackendContext): List<IrDeclaration>? {
+    return when (context.dceMode) {
+        DceMode.REMOVAL_DECLARATION -> emptyList()
+        DceMode.LOGGING, DceMode.THROWING_EXCEPTION -> {
+            processNonRemoving(context)
+            return null
         }
-        return null
     }
+}
 
-    return null
+private fun IrDeclaration.processNonRemoving(context: JsIrBackendContext) {
+    val jsUnreachableDeclaration = context.intrinsics.jsUnreachableDeclaration
+    if (this is IrFunction && this.symbol != jsUnreachableDeclaration) {
+        val call = JsIrBuilder.buildCall(
+            target = jsUnreachableDeclaration,
+            type = returnType
+        ).apply {
+            putValueArgument(
+                0,
+                JsIrBuilder.buildInt(
+                    context.irBuiltIns.intType,
+                    context.dceMode.dceModeToArgumentOfUnreachableMethod()
+                )
+            )
+        }
+        body?.addFunctionCall(call, this)
+    }
 }
 
 // TODO refactor it, the function became too big. Please contact me (Zalim) before doing it.
