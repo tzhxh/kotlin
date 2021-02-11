@@ -26,6 +26,7 @@ class FirResolvedCallableReferenceBuilder {
     lateinit var name: Name
     lateinit var resolvedSymbol: AbstractFirBasedSymbol<*>
     val inferredTypeArguments: MutableList<ConeKotlinType> = mutableListOf()
+    var needsVarargAdaptation: Boolean by kotlin.properties.Delegates.notNull<Boolean>()
 
     fun build(): FirResolvedCallableReference {
         return FirResolvedCallableReferenceImpl(
@@ -33,6 +34,7 @@ class FirResolvedCallableReferenceBuilder {
             name,
             resolvedSymbol,
             inferredTypeArguments,
+            needsVarargAdaptation,
         )
     }
 

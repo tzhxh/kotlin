@@ -22,6 +22,7 @@ internal class FirResolvedCallableReferenceImpl(
     override val name: Name,
     override val resolvedSymbol: AbstractFirBasedSymbol<*>,
     override val inferredTypeArguments: MutableList<ConeKotlinType>,
+    override val needsVarargAdaptation: Boolean,
 ) : FirResolvedCallableReference() {
     override val candidateSymbol: AbstractFirBasedSymbol<*>? get() = null
 

@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.fir.backend.convertWithOffsets
 import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.expressions.*
 import org.jetbrains.kotlin.fir.expressions.impl.FirNoReceiverExpression
+import org.jetbrains.kotlin.fir.references.FirResolvedCallableReference
 import org.jetbrains.kotlin.fir.render
 import org.jetbrains.kotlin.fir.resolve.inference.*
 import org.jetbrains.kotlin.fir.types.ConeClassLikeType
@@ -29,10 +30,7 @@ import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.impl.IrSimpleFunctionSymbolImpl
 import org.jetbrains.kotlin.ir.symbols.impl.IrValueParameterSymbolImpl
-import org.jetbrains.kotlin.ir.types.IrSimpleType
-import org.jetbrains.kotlin.ir.types.IrType
-import org.jetbrains.kotlin.ir.types.isUnit
-import org.jetbrains.kotlin.ir.types.typeOrNull
+import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.Name
 
@@ -58,7 +56,7 @@ internal class AdapterGenerator(
         function: IrFunction
     ): Boolean =
         needSuspendConversion(type, function) || needCoercionToUnit(type, function) ||
-                needVarargSpread(callableReferenceAccess, type, function)
+                needVarargSpread(callableReferenceAccess)
 
     /**
      * For example,
@@ -96,26 +94,9 @@ internal class AdapterGenerator(
      *
      * At the use site, instead of referenced, we can put the adapter: { a, b -> referenced(a, b) }
      */
-    private fun needVarargSpread(
-        callableReferenceAccess: FirCallableReferenceAccess,
-        type: IrSimpleType,
-        function: IrFunction
-    ): Boolean {
+    private fun needVarargSpread(callableReferenceAccess: FirCallableReferenceAccess): Boolean {
         // Unbound callable reference 'A::foo'
-        val shift = if (callableReferenceAccess.explicitReceiver is FirResolvedQualifier) 1 else 0
-        val typeArguments = type.arguments
-        // Drop the return type from type arguments
-        val expectedParameterSize = typeArguments.size - 1 - shift
-        if (expectedParameterSize < function.valueParameters.size) {
-            return false
-        }
-        var hasSpreadCase = false
-        function.valueParameters.forEachIndexed { index, irValueParameter ->
-            if (irValueParameter.isVararg && typeArguments[shift + index] == irValueParameter.varargElementType) {
-                hasSpreadCase = true
-            }
-        }
-        return hasSpreadCase
+        return (callableReferenceAccess.calleeReference as? FirResolvedCallableReference)?.needsVarargAdaptation == true
     }
 
     internal fun ConeKotlinType.kFunctionTypeToFunctionType(): IrSimpleType =

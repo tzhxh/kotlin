@@ -14,10 +14,8 @@ import org.jetbrains.kotlin.fir.references.builder.buildErrorNamedReference
 import org.jetbrains.kotlin.fir.references.builder.buildResolvedCallableReference
 import org.jetbrains.kotlin.fir.references.builder.buildResolvedNamedReference
 import org.jetbrains.kotlin.fir.resolve.*
-import org.jetbrains.kotlin.fir.resolve.calls.Candidate
-import org.jetbrains.kotlin.fir.resolve.calls.FirErrorReferenceWithCandidate
-import org.jetbrains.kotlin.fir.resolve.calls.FirNamedReferenceWithCandidate
-import org.jetbrains.kotlin.fir.resolve.calls.varargElementType
+import org.jetbrains.kotlin.fir.resolve.calls.*
+import org.jetbrains.kotlin.fir.resolve.calls.CallableReferenceAdaptation
 import org.jetbrains.kotlin.fir.resolve.dfa.FirDataFlowAnalyzer
 import org.jetbrains.kotlin.fir.resolve.inference.*
 import org.jetbrains.kotlin.fir.resolve.substitution.ConeSubstitutor
@@ -270,6 +268,13 @@ class FirCallCompletionResultsWriterTransformer(
         return safeCallExpression.compose()
     }
 
+    private fun needsCallableReferenceAdaptation(callableReferenceAdaptation: CallableReferenceAdaptation?): Boolean {
+        if (callableReferenceAdaptation == null) return false
+        return callableReferenceAdaptation.mappedArguments.values.any {
+            it is ResolvedCallArgument.DefaultArgument || it is ResolvedCallArgument.VarargArgument
+        }
+    }
+
     override fun transformCallableReferenceAccess(
         callableReferenceAccess: FirCallableReferenceAccess,
         data: ExpectedArgumentType?,
@@ -295,6 +300,7 @@ class FirCallCompletionResultsWriterTransformer(
                 name = calleeReference.name
                 resolvedSymbol = calleeReference.candidateSymbol
                 inferredTypeArguments.addAll(computeTypeArgumentTypes(calleeReference.candidate))
+                needsVarargAdaptation = needsCallableReferenceAdaptation(subCandidate.callableReferenceAdaptation)
             },
         ).transformDispatchReceiver(StoreReceiver, subCandidate.dispatchReceiverExpression())
             .transformExtensionReceiver(StoreReceiver, subCandidate.extensionReceiverExpression())

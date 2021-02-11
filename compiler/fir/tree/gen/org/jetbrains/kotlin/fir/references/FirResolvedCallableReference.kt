@@ -22,6 +22,7 @@ abstract class FirResolvedCallableReference : FirResolvedNamedReference() {
     abstract override val candidateSymbol: AbstractFirBasedSymbol<*>?
     abstract override val resolvedSymbol: AbstractFirBasedSymbol<*>
     abstract val inferredTypeArguments: List<ConeKotlinType>
+    abstract val needsVarargAdaptation: Boolean
 
     override fun <R, D> accept(visitor: FirVisitor<R, D>, data: D): R = visitor.visitResolvedCallableReference(this, data)
 }
