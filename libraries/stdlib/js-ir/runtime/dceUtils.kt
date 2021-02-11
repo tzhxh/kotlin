@@ -11,7 +11,7 @@ package kotlin.js
  * - 0 - logging
  * - 1 - throwing exception
  */
-fun unreachableDeclaration(arg: Int = 0) {
+internal fun unreachableDeclaration(arg: Int = 0) {
     when (arg) {
         0 -> console.log("Unreachable declaration")
         1 -> throw RuntimeException("Unreachable declaration")
