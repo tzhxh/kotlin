@@ -2165,6 +2165,12 @@ public class IrTextTestGenerated extends AbstractIrTextTest {
         }
 
         @Test
+        @TestMetadata("localFunctionWithDefault.kt")
+        public void testLocalFunctionWithDefault() throws Exception {
+            runTest("compiler/testData/ir/irText/firProblems/localFunctionWithDefault.kt");
+        }
+
+        @Test
         @TestMetadata("Modality.kt")
         public void testModality() throws Exception {
             runTest("compiler/testData/ir/irText/firProblems/Modality.kt");

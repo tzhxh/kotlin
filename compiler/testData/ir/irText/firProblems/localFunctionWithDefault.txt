@@ -1,0 +1,46 @@
+FILE fqName:<root> fileName:/localFunctionWithDefault.kt
+  FUN name:call1 visibility:public modality:FINAL <> (f:kotlin.Function2<kotlin.String, kotlin.String, kotlin.String>, x:kotlin.String, y:kotlin.String) returnType:kotlin.String
+    VALUE_PARAMETER name:f index:0 type:kotlin.Function2<kotlin.String, kotlin.String, kotlin.String>
+    VALUE_PARAMETER name:x index:1 type:kotlin.String
+    VALUE_PARAMETER name:y index:2 type:kotlin.String
+    BLOCK_BODY
+      RETURN type=kotlin.Nothing from='public final fun call1 (f: kotlin.Function2<kotlin.String, kotlin.String, kotlin.String>, x: kotlin.String, y: kotlin.String): kotlin.String declared in <root>'
+        CALL 'public abstract fun invoke (p1: P1 of kotlin.Function2, p2: P2 of kotlin.Function2): R of kotlin.Function2 [operator] declared in kotlin.Function2' type=kotlin.String origin=INVOKE
+          $this: GET_VAR 'f: kotlin.Function2<kotlin.String, kotlin.String, kotlin.String> declared in <root>.call1' type=kotlin.Function2<kotlin.String, kotlin.String, kotlin.String> origin=VARIABLE_AS_FUNCTION
+          p1: GET_VAR 'x: kotlin.String declared in <root>.call1' type=kotlin.String origin=null
+          p2: GET_VAR 'y: kotlin.String declared in <root>.call1' type=kotlin.String origin=null
+  FUN name:box visibility:public modality:FINAL <> () returnType:kotlin.String
+    BLOCK_BODY
+      VAR name:s type:kotlin.String [var]
+        CONST String type=kotlin.String value="1"
+      FUN name:foo visibility:local modality:FINAL <> (x:kotlin.String, y:kotlin.String, z:kotlin.String) returnType:kotlin.String
+        VALUE_PARAMETER name:x index:0 type:kotlin.String
+        VALUE_PARAMETER name:y index:1 type:kotlin.String
+          EXPRESSION_BODY
+            CONST String type=kotlin.String value="5"
+        VALUE_PARAMETER name:z index:2 type:kotlin.String
+          EXPRESSION_BODY
+            CONST String type=kotlin.String value="4"
+        BLOCK_BODY
+          RETURN type=kotlin.Nothing from='local final fun foo (x: kotlin.String, y: kotlin.String, z: kotlin.String): kotlin.String declared in <root>.box'
+            CALL 'public final fun plus (other: kotlin.Any?): kotlin.String [operator] declared in kotlin.String' type=kotlin.String origin=PLUS
+              $this: CALL 'public final fun plus (other: kotlin.Any?): kotlin.String [operator] declared in kotlin.String' type=kotlin.String origin=PLUS
+                $this: CALL 'public final fun plus (other: kotlin.Any?): kotlin.String [operator] declared in kotlin.String' type=kotlin.String origin=PLUS
+                  $this: GET_VAR 'var s: kotlin.String [var] declared in <root>.box' type=kotlin.String origin=null
+                  other: GET_VAR 'x: kotlin.String declared in <root>.box.foo' type=kotlin.String origin=null
+                other: GET_VAR 'y: kotlin.String declared in <root>.box.foo' type=kotlin.String origin=null
+              other: GET_VAR 'z: kotlin.String declared in <root>.box.foo' type=kotlin.String origin=null
+      VAR name:r type:kotlin.String [val]
+        CALL 'public final fun call1 (f: kotlin.Function2<kotlin.String, kotlin.String, kotlin.String>, x: kotlin.String, y: kotlin.String): kotlin.String declared in <root>' type=kotlin.String origin=null
+          f: BLOCK type=kotlin.Function2<kotlin.String, kotlin.String, kotlin.String> origin=ADAPTED_FUNCTION_REFERENCE
+            FUN ADAPTER_FOR_CALLABLE_REFERENCE name:foo visibility:local modality:FINAL <> (p0:kotlin.String, p1:kotlin.String) returnType:kotlin.String
+              VALUE_PARAMETER ADAPTER_PARAMETER_FOR_CALLABLE_REFERENCE name:p0 index:0 type:kotlin.String
+              VALUE_PARAMETER ADAPTER_PARAMETER_FOR_CALLABLE_REFERENCE name:p1 index:1 type:kotlin.String
+              BLOCK_BODY
+                RETURN type=kotlin.Nothing from='local final fun foo (p0: kotlin.String, p1: kotlin.String): kotlin.String declared in <root>.box'
+                  CALL 'local final fun foo (x: kotlin.String, y: kotlin.String, z: kotlin.String): kotlin.String declared in <root>.box' type=kotlin.String origin=null
+                    x: GET_VAR 'p0: kotlin.String declared in <root>.box.foo' type=kotlin.String origin=null
+                    y: GET_VAR 'p1: kotlin.String declared in <root>.box.foo' type=kotlin.String origin=null
+            FUNCTION_REFERENCE 'local final fun foo (p0: kotlin.String, p1: kotlin.String): kotlin.String declared in <root>.box' type=kotlin.Function2<kotlin.String, kotlin.String, kotlin.String> origin=ADAPTED_FUNCTION_REFERENCE reflectionTarget=local final fun foo (x: kotlin.String, y: kotlin.String, z: kotlin.String): kotlin.String declared in <root>.box
+          x: CONST String type=kotlin.String value="2"
+          y: CONST String type=kotlin.String value="3"
