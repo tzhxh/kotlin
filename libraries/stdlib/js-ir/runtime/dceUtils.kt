@@ -13,7 +13,10 @@ package kotlin.js
  */
 internal fun unreachableDeclaration(arg: Int = 0) {
     when (arg) {
-        0 -> console.log("Unreachable declaration")
-        1 -> throw RuntimeException("Unreachable declaration")
+        0 -> console.error("Unreachable declaration")
+        1 -> throw JsError("Unreachable declaration")
     }
 }
+
+@JsName("Error")
+internal open external class JsError(message: String) : Throwable
