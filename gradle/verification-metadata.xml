@@ -3,6 +3,9 @@
    <configuration>
       <verify-metadata>true</verify-metadata>
       <verify-signatures>false</verify-signatures>
+      <trusted-artifacts>
+         <trust version="202.7660.26" file="ivy-202.7660.26.xml"/>
+      </trusted-artifacts>
    </configuration>
    <components>
       <component group="androidx.annotation" name="annotation" version="1.0.0">
