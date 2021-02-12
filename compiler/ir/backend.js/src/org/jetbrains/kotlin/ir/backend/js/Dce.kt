@@ -7,6 +7,7 @@ package org.jetbrains.kotlin.ir.backend.js
 
 import org.jetbrains.kotlin.backend.common.ir.isMemberOfOpenClass
 import org.jetbrains.kotlin.ir.IrElement
+import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.backend.js.export.isExported
 import org.jetbrains.kotlin.ir.backend.js.ir.JsIrBuilder
 import org.jetbrains.kotlin.ir.backend.js.utils.*
@@ -21,9 +22,7 @@ import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
-import org.jetbrains.kotlin.js.config.JSConfigurationKeys
-import org.jetbrains.kotlin.js.config.dceModeToArgumentOfUnreachableMethod
-import org.jetbrains.kotlin.js.config.isNotRemoving
+import org.jetbrains.kotlin.js.config.*
 import org.jetbrains.kotlin.utils.addIfNotNull
 import java.util.*
 
@@ -64,7 +63,7 @@ private fun buildRoots(modules: Iterable<IrModuleFragment>, context: JsIrBackend
 
     rootDeclarations += context.testRoots.values
 
-    if (context.dceMode.isNotRemoving()) {
+    if (context.dceMode.isNotRemovingDeclaration()) {
         rootDeclarations += context.intrinsics.jsUnreachableDeclaration.owner
     }
 
@@ -128,7 +127,7 @@ private fun removeUselessDeclarations(
 
 private fun IrDeclaration.processUselessDeclaration(context: JsIrBackendContext): List<IrDeclaration>? {
     return when {
-        context.dceMode.isNotRemoving() -> {
+        context.dceMode.isNotRemovingDeclaration() -> {
             processNonRemoving(context)
             return null
         }
@@ -139,6 +138,7 @@ private fun IrDeclaration.processUselessDeclaration(context: JsIrBackendContext)
 private fun IrDeclaration.processNonRemoving(context: JsIrBackendContext) {
     val jsUnreachableDeclaration = context.intrinsics.jsUnreachableDeclaration
     if (this is IrFunction && this.symbol != jsUnreachableDeclaration) {
+        val dceMode = context.dceMode
         val call = JsIrBuilder.buildCall(
             target = jsUnreachableDeclaration,
             type = returnType
@@ -147,10 +147,17 @@ private fun IrDeclaration.processNonRemoving(context: JsIrBackendContext) {
                 0,
                 JsIrBuilder.buildInt(
                     context.irBuiltIns.intType,
-                    context.dceMode.dceModeToArgumentOfUnreachableMethod()
+                    dceMode.dceModeToArgumentOfUnreachableMethod()
                 )
             )
         }
+        if (dceMode.removingBody()) {
+            body = context.irFactory.createBlockBody(
+                UNDEFINED_OFFSET,
+                UNDEFINED_OFFSET
+            )
+        }
+
         body?.addFunctionCall(call, this)
     }
 }
