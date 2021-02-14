@@ -72,7 +72,12 @@ internal constructor(
 
     override fun iterator(): ULongIterator = ULongProgressionIterator(first, last, step)
 
-    /** Checks if the progression is empty. */
+    /**
+     * Checks if the progression is empty.
+     *
+     * Increasing progression is empty if its start value is greater than the end value.
+     * Decreasing progression is empty if its start value is less than the end value.
+     */
     public open fun isEmpty(): Boolean = if (step > 0) first > last else first < last
 
     override fun equals(other: Any?): Boolean =
