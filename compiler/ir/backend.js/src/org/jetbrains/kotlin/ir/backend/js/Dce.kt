@@ -22,7 +22,10 @@ import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
-import org.jetbrains.kotlin.js.config.*
+import org.jetbrains.kotlin.js.config.JSConfigurationKeys
+import org.jetbrains.kotlin.js.config.dceModeToArgumentOfUnreachableMethod
+import org.jetbrains.kotlin.js.config.isNotRemovingDeclaration
+import org.jetbrains.kotlin.js.config.removingBody
 import org.jetbrains.kotlin.utils.addIfNotNull
 import java.util.*
 
@@ -36,7 +39,7 @@ fun eliminateDeadDeclarations(
     val usefulDeclarations = usefulDeclarations(allRoots, context)
 
     stageController.unrestrictDeclarationListsAccess {
-        removeUselessDeclarations(
+        processUselessDeclarations(
             modules,
             usefulDeclarations,
             context
@@ -77,7 +80,7 @@ private fun buildRoots(modules: Iterable<IrModuleFragment>, context: JsIrBackend
     return rootDeclarations
 }
 
-private fun removeUselessDeclarations(
+private fun processUselessDeclarations(
     modules: Iterable<IrModuleFragment>,
     usefulDeclarations: Set<IrDeclaration>,
     context: JsIrBackendContext
@@ -136,8 +139,17 @@ private fun IrDeclaration.processUselessDeclaration(context: JsIrBackendContext)
 }
 
 private fun IrDeclaration.processNonRemoving(context: JsIrBackendContext) {
+    when (this) {
+        is IrFunction -> processNonRemovingFunction(context)
+        is IrField -> processNonRemovingField()
+        is IrDeclarationContainer -> declarations.forEach { it.processNonRemoving(context) }
+    }
+}
+
+private fun IrFunction.processNonRemovingFunction(context: JsIrBackendContext) {
     val jsUnreachableDeclaration = context.intrinsics.jsUnreachableDeclaration
-    if (this is IrFunction && this.symbol != jsUnreachableDeclaration) {
+
+    if (symbol != jsUnreachableDeclaration) {
         val dceMode = context.dceMode
         val call = JsIrBuilder.buildCall(
             target = jsUnreachableDeclaration,
@@ -159,6 +171,12 @@ private fun IrDeclaration.processNonRemoving(context: JsIrBackendContext) {
         }
 
         body?.addFunctionCall(call, this)
+    }
+}
+
+private fun IrField.processNonRemovingField() {
+    if (initializer != null && fqNameWhenAvailable?.asString()?.startsWith("kotlin") == true) {
+        initializer = null
     }
 }
 
