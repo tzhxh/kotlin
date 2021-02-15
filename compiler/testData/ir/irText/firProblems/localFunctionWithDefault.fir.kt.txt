@@ -9,7 +9,7 @@ fun box(): String {
   }
 
   val r: String = call1(f = local fun foo(p0: String, p1: String): String {
-    return foo(x = p0)
+    return foo(x = p0, y = p1)
   }
 , x = "2", y = "3")
 }

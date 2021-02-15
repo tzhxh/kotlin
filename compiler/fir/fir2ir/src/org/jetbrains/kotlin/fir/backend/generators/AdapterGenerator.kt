@@ -14,6 +14,8 @@ import org.jetbrains.kotlin.fir.expressions.*
 import org.jetbrains.kotlin.fir.expressions.impl.FirNoReceiverExpression
 import org.jetbrains.kotlin.fir.references.FirResolvedCallableReference
 import org.jetbrains.kotlin.fir.render
+import org.jetbrains.kotlin.fir.resolve.calls.FirFakeArgumentForCallableReference
+import org.jetbrains.kotlin.fir.resolve.calls.ResolvedCallArgument
 import org.jetbrains.kotlin.fir.resolve.inference.*
 import org.jetbrains.kotlin.fir.types.ConeClassLikeType
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
@@ -96,7 +98,9 @@ internal class AdapterGenerator(
      */
     private fun needVarargSpread(callableReferenceAccess: FirCallableReferenceAccess): Boolean {
         // Unbound callable reference 'A::foo'
-        return (callableReferenceAccess.calleeReference as? FirResolvedCallableReference)?.needsVarargAdaptation == true
+        return (callableReferenceAccess.calleeReference as? FirResolvedCallableReference)?.mappedArguments?.any {
+            it.value is ResolvedCallArgument.VarargArgument || it.value is ResolvedCallArgument.DefaultArgument
+        } == true
     }
 
     internal fun ConeKotlinType.kFunctionTypeToFunctionType(): IrSimpleType =
@@ -277,6 +281,7 @@ internal class AdapterGenerator(
         }
 
         var adapterParameterIndex = 0
+        var parameterShift = 0
         if (boundDispatchReceiver != null || boundExtensionReceiver != null) {
             val receiverValue = IrGetValueImpl(
                 startOffset, endOffset, adapterFunction.extensionReceiverParameter!!.symbol, IrStatementOrigin.ADAPTED_FUNCTION_REFERENCE
@@ -293,50 +298,65 @@ internal class AdapterGenerator(
             )
             if (adapteeFunction.extensionReceiverParameter != null) {
                 irCall.extensionReceiver = adaptedReceiverValue
-                adapterParameterIndex++
+                parameterShift++
             } else {
                 irCall.dispatchReceiver = adaptedReceiverValue
             }
         }
 
+        val mappedArguments = (callableReferenceAccess.calleeReference as? FirResolvedCallableReference)?.mappedArguments
         adapteeFunction.valueParameters.mapIndexed { index, valueParameter ->
-            when {
-                valueParameter.isVararg -> {
-                    if (adapterFunction.valueParameters.size <= index) {
-                        irCall.putValueArgument(index, null)
+            when (val mappedArgument = mappedArguments?.entries?.find { (firParameter, _) ->
+                valueParameter.name == firParameter.name
+            }?.value) {
+                is ResolvedCallArgument.VarargArgument -> {
+                    val valueArgument = if (mappedArgument.arguments.isEmpty()) {
+                        null
                     } else {
-                        val adaptedValueArgument =
-                            IrVarargImpl(startOffset, endOffset, valueParameter.type, valueParameter.varargElementType!!)
-                        var neitherArrayNorSpread = false
-                        while (adapterParameterIndex < adapterFunction.valueParameters.size) {
+                        val adaptedValueArgument = IrVarargImpl(
+                            startOffset, endOffset,
+                            valueParameter.type, valueParameter.varargElementType!!,
+                        )
+                        for (argument in mappedArgument.arguments) {
+                            val parameterIndex = (argument as? FirFakeArgumentForCallableReference)?.index ?: adapterParameterIndex
                             val irValueArgument =
-                                adapterFunction.valueParameters[adapterParameterIndex].toIrGetValue(startOffset, endOffset)
+                                adapterFunction.valueParameters[parameterIndex + parameterShift].toIrGetValue(startOffset, endOffset)
                             if (irValueArgument.type == valueParameter.type) {
                                 adaptedValueArgument.addElement(IrSpreadElementImpl(startOffset, endOffset, irValueArgument))
                                 adapterParameterIndex++
                                 break
-                            } else if (irValueArgument.type == valueParameter.varargElementType) {
+                            } else {
                                 adaptedValueArgument.addElement(irValueArgument)
                                 adapterParameterIndex++
-                            } else {
-                                neitherArrayNorSpread = true
-                                break
                             }
                         }
-                        if (neitherArrayNorSpread) {
-                            irCall.putValueArgument(index, null)
-                        } else {
-                            irCall.putValueArgument(index, adaptedValueArgument)
-                        }
+                        adaptedValueArgument
                     }
+                    irCall.putValueArgument(index, valueArgument)
                 }
-                valueParameter.hasDefaultValue() -> {
+                ResolvedCallArgument.DefaultArgument -> {
                     irCall.putValueArgument(index, null)
                 }
-                else -> {
-                    irCall.putValueArgument(
-                        index, adapterFunction.valueParameters[adapterParameterIndex++].toIrGetValue(startOffset, endOffset)
-                    )
+                is ResolvedCallArgument.SimpleArgument -> {
+                    val parameterIndex =
+                        (mappedArgument.callArgument as? FirFakeArgumentForCallableReference)?.index ?: adapterParameterIndex
+                    val irValueArgument =
+                        adapterFunction.valueParameters[parameterIndex + parameterShift].toIrGetValue(startOffset, endOffset)
+                    if (valueParameter.isVararg) {
+                        irCall.putValueArgument(
+                            index, IrVarargImpl(
+                                startOffset, endOffset,
+                                valueParameter.type, valueParameter.varargElementType!!,
+                                listOf(IrSpreadElementImpl(startOffset, endOffset, irValueArgument))
+                            )
+                        )
+                    } else {
+                        irCall.putValueArgument(index, irValueArgument)
+                    }
+                    adapterParameterIndex++
+                }
+                null -> {
+
                 }
             }
         }

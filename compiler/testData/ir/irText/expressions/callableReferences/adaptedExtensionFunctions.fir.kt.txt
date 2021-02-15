@@ -21,7 +21,7 @@ fun C.extensionBoth(i: Int, s: String = "", vararg t: String) {
 
 fun testExtensionVararg() {
   use(f = local fun extensionVararg(p0: C, p1: Int) {
-    p0.extensionVararg(i = p1, s = [])
+    p0.extensionVararg(i = p1)
   }
 )
 }

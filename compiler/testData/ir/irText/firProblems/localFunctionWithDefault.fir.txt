@@ -40,5 +40,6 @@ FILE fqName:<root> fileName:/localFunctionWithDefault.kt
                 RETURN type=kotlin.Nothing from='local final fun foo (p0: kotlin.String, p1: kotlin.String): kotlin.String declared in <root>.box'
                   CALL 'local final fun foo (x: kotlin.String, y: kotlin.String, z: kotlin.String): kotlin.String declared in <root>.box' type=kotlin.String origin=null
                     x: GET_VAR 'p0: kotlin.String declared in <root>.box.foo' type=kotlin.String origin=null
+                    y: GET_VAR 'p1: kotlin.String declared in <root>.box.foo' type=kotlin.String origin=null
           x: CONST String type=kotlin.String value="2"
           y: CONST String type=kotlin.String value="3"

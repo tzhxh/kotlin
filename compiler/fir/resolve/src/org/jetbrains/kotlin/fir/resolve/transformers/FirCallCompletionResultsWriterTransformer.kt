@@ -268,13 +268,6 @@ class FirCallCompletionResultsWriterTransformer(
         return safeCallExpression.compose()
     }
 
-    private fun needsCallableReferenceAdaptation(callableReferenceAdaptation: CallableReferenceAdaptation?): Boolean {
-        if (callableReferenceAdaptation == null) return false
-        return callableReferenceAdaptation.mappedArguments.values.any {
-            it is ResolvedCallArgument.DefaultArgument || it is ResolvedCallArgument.VarargArgument
-        }
-    }
-
     override fun transformCallableReferenceAccess(
         callableReferenceAccess: FirCallableReferenceAccess,
         data: ExpectedArgumentType?,
@@ -300,7 +293,7 @@ class FirCallCompletionResultsWriterTransformer(
                 name = calleeReference.name
                 resolvedSymbol = calleeReference.candidateSymbol
                 inferredTypeArguments.addAll(computeTypeArgumentTypes(calleeReference.candidate))
-                needsVarargAdaptation = needsCallableReferenceAdaptation(subCandidate.callableReferenceAdaptation)
+                mappedArguments = subCandidate.callableReferenceAdaptation?.mappedArguments ?: emptyMap()
             },
         ).transformDispatchReceiver(StoreReceiver, subCandidate.dispatchReceiverExpression())
             .transformExtensionReceiver(StoreReceiver, subCandidate.extensionReceiverExpression())

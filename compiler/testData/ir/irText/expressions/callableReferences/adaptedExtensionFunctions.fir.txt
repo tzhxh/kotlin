@@ -52,7 +52,6 @@ FILE fqName:<root> fileName:/adaptedExtensionFunctions.kt
               CALL 'public final fun extensionVararg (i: kotlin.Int, vararg s: kotlin.String): kotlin.Unit declared in <root>' type=kotlin.Unit origin=null
                 $receiver: GET_VAR 'p0: <root>.C declared in <root>.testExtensionVararg.extensionVararg' type=<root>.C origin=null
                 i: GET_VAR 'p1: kotlin.Int declared in <root>.testExtensionVararg.extensionVararg' type=kotlin.Int origin=null
-                s: VARARG type=kotlin.Array<out kotlin.String> varargElementType=kotlin.String
   FUN name:testExtensionDefault visibility:public modality:FINAL <> () returnType:kotlin.Unit
     BLOCK_BODY
       CALL 'public final fun use (f: @[ExtensionFunctionType] kotlin.Function2<<root>.C, kotlin.Int, kotlin.Unit>): kotlin.Unit declared in <root>' type=kotlin.Unit origin=null
