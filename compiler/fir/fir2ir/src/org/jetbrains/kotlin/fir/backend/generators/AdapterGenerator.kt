@@ -299,10 +299,10 @@ internal class AdapterGenerator(
             )
             if (adapteeFunction.extensionReceiverParameter != null) {
                 irCall.extensionReceiver = adaptedReceiverValue
-                parameterShift++
             } else {
                 irCall.dispatchReceiver = adaptedReceiverValue
             }
+            parameterShift++
         }
 
         val mappedArguments = (callableReferenceAccess.calleeReference as? FirResolvedCallableReference)?.mappedArguments

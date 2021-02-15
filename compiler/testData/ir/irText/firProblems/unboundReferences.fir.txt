@@ -107,7 +107,7 @@ FILE fqName:<root> fileName:/unboundReferences.kt
             BLOCK_BODY
               CALL 'public final fun memberVararg (i: kotlin.Int, vararg s: kotlin.String): kotlin.Unit declared in <root>.C' type=kotlin.Unit origin=null
                 $this: GET_VAR 'p0: <root>.C declared in <root>.box.memberVararg' type=<root>.C origin=null
-                i: GET_VAR 'p0: <root>.C declared in <root>.box.memberVararg' type=<root>.C origin=null
+                i: GET_VAR 'p1: kotlin.Int declared in <root>.box.memberVararg' type=kotlin.Int origin=null
         p: CONST Int type=kotlin.Int value=43
       CALL 'public final fun test (f: @[ExtensionFunctionType] kotlin.Function2<<root>.C, kotlin.Int, kotlin.Unit>, p: kotlin.Int): kotlin.Unit declared in <root>' type=kotlin.Unit origin=null
         f: FUN_EXPR type=kotlin.Function2<<root>.C, kotlin.Int, kotlin.Unit> origin=ADAPTED_FUNCTION_REFERENCE
@@ -117,7 +117,7 @@ FILE fqName:<root> fileName:/unboundReferences.kt
             BLOCK_BODY
               CALL 'public final fun memberDefault (i: kotlin.Int, s: kotlin.String): kotlin.Unit declared in <root>.C' type=kotlin.Unit origin=null
                 $this: GET_VAR 'p0: <root>.C declared in <root>.box.memberDefault' type=<root>.C origin=null
-                i: GET_VAR 'p0: <root>.C declared in <root>.box.memberDefault' type=<root>.C origin=null
+                i: GET_VAR 'p1: kotlin.Int declared in <root>.box.memberDefault' type=kotlin.Int origin=null
         p: CONST Int type=kotlin.Int value=43
       CALL 'public final fun test (f: @[ExtensionFunctionType] kotlin.Function2<<root>.C, kotlin.Int, kotlin.Unit>, p: kotlin.Int): kotlin.Unit declared in <root>' type=kotlin.Unit origin=null
         f: FUN_EXPR type=kotlin.Function2<<root>.C, kotlin.Int, kotlin.Unit> origin=ADAPTED_FUNCTION_REFERENCE
@@ -127,7 +127,7 @@ FILE fqName:<root> fileName:/unboundReferences.kt
             BLOCK_BODY
               CALL 'public final fun memberBoth (i: kotlin.Int, s: kotlin.String, vararg t: kotlin.String): kotlin.Unit declared in <root>.C' type=kotlin.Unit origin=null
                 $this: GET_VAR 'p0: <root>.C declared in <root>.box.memberBoth' type=<root>.C origin=null
-                i: GET_VAR 'p0: <root>.C declared in <root>.box.memberBoth' type=<root>.C origin=null
+                i: GET_VAR 'p1: kotlin.Int declared in <root>.box.memberBoth' type=kotlin.Int origin=null
         p: CONST Int type=kotlin.Int value=43
       CALL 'public final fun test (f: @[ExtensionFunctionType] kotlin.Function2<<root>.C, kotlin.Int, kotlin.Unit>, p: kotlin.Int): kotlin.Unit declared in <root>' type=kotlin.Unit origin=null
         f: FUN_EXPR type=kotlin.Function2<<root>.C, kotlin.Int, kotlin.Unit> origin=ADAPTED_FUNCTION_REFERENCE

@@ -38,15 +38,15 @@ fun test(f: @ExtensionFunctionType Function2<C, Int, Unit>, p: Int) {
 
 fun box(): String {
   test(f = local fun memberVararg(p0: C, p1: Int) {
-    p0.memberVararg(i = p0)
+    p0.memberVararg(i = p1)
   }
 , p = 43)
   test(f = local fun memberDefault(p0: C, p1: Int) {
-    p0.memberDefault(i = p0)
+    p0.memberDefault(i = p1)
   }
 , p = 43)
   test(f = local fun memberBoth(p0: C, p1: Int) {
-    p0.memberBoth(i = p0)
+    p0.memberBoth(i = p1)
   }
 , p = 43)
   test(f = local fun extensionVararg(p0: C, p1: Int) {
