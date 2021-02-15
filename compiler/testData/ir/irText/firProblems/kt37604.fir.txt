@@ -125,7 +125,10 @@ FILE fqName:<root> fileName:/kt37604.kt
   FUN name:box visibility:public modality:FINAL <> () returnType:kotlin.String
     BLOCK_BODY
       CALL 'public final fun useUnit (fn: kotlin.Function0<kotlin.Unit>): kotlin.Unit declared in <root>' type=kotlin.Unit origin=null
-        fn: FUNCTION_REFERENCE 'public constructor <init> () [primary] declared in <root>.C' type=kotlin.reflect.KFunction0<kotlin.Unit> origin=null reflectionTarget=<same>
+        fn: FUN_EXPR type=kotlin.Function0<kotlin.Unit> origin=ADAPTED_FUNCTION_REFERENCE
+          FUN ADAPTER_FOR_CALLABLE_REFERENCE name:<init> visibility:local modality:FINAL <> () returnType:kotlin.Unit
+            BLOCK_BODY
+              CONSTRUCTOR_CALL 'public constructor <init> () [primary] declared in <root>.C' type=<root>.C origin=null
       WHEN type=kotlin.Unit origin=IF
         BRANCH
           if: CALL 'public final fun not (): kotlin.Boolean [operator] declared in kotlin.Boolean' type=kotlin.Boolean origin=null
@@ -134,7 +137,10 @@ FILE fqName:<root> fileName:/kt37604.kt
             CONSTRUCTOR_CALL 'public constructor <init> (p0: kotlin.Any?) declared in java.lang.AssertionError' type=java.lang.AssertionError origin=null
               p0: CONST String type=kotlin.String value="cInit"
       CALL 'public final fun useUnit (fn: kotlin.Function0<kotlin.Unit>): kotlin.Unit declared in <root>' type=kotlin.Unit origin=null
-        fn: FUNCTION_REFERENCE 'public constructor <init> (x: kotlin.Int) [primary] declared in <root>.CWithDefault' type=kotlin.reflect.KFunction0<kotlin.Unit> origin=null reflectionTarget=<same>
+        fn: FUN_EXPR type=kotlin.Function0<kotlin.Unit> origin=ADAPTED_FUNCTION_REFERENCE
+          FUN ADAPTER_FOR_CALLABLE_REFERENCE name:<init> visibility:local modality:FINAL <> () returnType:kotlin.Unit
+            BLOCK_BODY
+              CONSTRUCTOR_CALL 'public constructor <init> (x: kotlin.Int) [primary] declared in <root>.CWithDefault' type=<root>.CWithDefault origin=null
       WHEN type=kotlin.Unit origin=IF
         BRANCH
           if: CALL 'public final fun not (): kotlin.Boolean [operator] declared in kotlin.Boolean' type=kotlin.Boolean origin=null
@@ -143,7 +149,10 @@ FILE fqName:<root> fileName:/kt37604.kt
             CONSTRUCTOR_CALL 'public constructor <init> (p0: kotlin.Any?) declared in java.lang.AssertionError' type=java.lang.AssertionError origin=null
               p0: CONST String type=kotlin.String value="cWithDefaultInit"
       CALL 'public final fun useUnit (fn: kotlin.Function0<kotlin.Unit>): kotlin.Unit declared in <root>' type=kotlin.Unit origin=null
-        fn: FUNCTION_REFERENCE 'public constructor <init> (vararg x: kotlin.Int) [primary] declared in <root>.CWithVararg' type=kotlin.reflect.KFunction0<kotlin.Unit> origin=null reflectionTarget=<same>
+        fn: FUN_EXPR type=kotlin.Function0<kotlin.Unit> origin=ADAPTED_FUNCTION_REFERENCE
+          FUN ADAPTER_FOR_CALLABLE_REFERENCE name:<init> visibility:local modality:FINAL <> () returnType:kotlin.Unit
+            BLOCK_BODY
+              CONSTRUCTOR_CALL 'public constructor <init> (vararg x: kotlin.Int) [primary] declared in <root>.CWithVararg' type=<root>.CWithVararg origin=null
       WHEN type=kotlin.Unit origin=IF
         BRANCH
           if: CALL 'public final fun not (): kotlin.Boolean [operator] declared in kotlin.Boolean' type=kotlin.Boolean origin=null

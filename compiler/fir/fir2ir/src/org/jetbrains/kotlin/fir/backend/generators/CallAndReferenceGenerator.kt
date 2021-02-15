@@ -125,12 +125,21 @@ class CallAndReferenceGenerator(
                 is IrConstructorSymbol -> {
                     val constructor = symbol.owner
                     val klass = constructor.parent as? IrClass
-                    IrFunctionReferenceImpl(
-                        startOffset, endOffset, type, symbol,
-                        typeArgumentsCount = constructor.typeParameters.size + (klass?.typeParameters?.size ?: 0),
-                        valueArgumentsCount = constructor.valueParameters.size,
-                        reflectionTarget = symbol
-                    )
+                    type as IrSimpleType
+                    if (adapterGenerator.needToGenerateAdaptedCallableReference(callableReferenceAccess, type, constructor)) {
+                        with(adapterGenerator) {
+                            val adaptedType = callableReferenceAccess.typeRef.coneType.kFunctionTypeToFunctionType()
+                            generateAdaptedCallableReference(callableReferenceAccess, explicitReceiverExpression, symbol, adaptedType)
+                        }
+
+                    } else {
+                        IrFunctionReferenceImpl(
+                            startOffset, endOffset, type, symbol,
+                            typeArgumentsCount = constructor.typeParameters.size + (klass?.typeParameters?.size ?: 0),
+                            valueArgumentsCount = constructor.valueParameters.size,
+                            reflectionTarget = symbol
+                        )
+                    }
                 }
                 is IrFunctionSymbol -> {
                     assert(type.isFunctionTypeOrSubtype()) {

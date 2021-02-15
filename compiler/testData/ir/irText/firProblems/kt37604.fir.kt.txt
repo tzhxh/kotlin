@@ -57,15 +57,24 @@ class CWithVararg {
 }
 
 fun box(): String {
-  useUnit(fn = C::<init>)
+  useUnit(fn = local fun <init>() {
+    C()
+  }
+)
   when {
     <get-cInit>().not() -> throw AssertionError(p0 = "cInit")
   }
-  useUnit(fn = CWithDefault::<init>)
+  useUnit(fn = local fun <init>() {
+    CWithDefault()
+  }
+)
   when {
     <get-cWithDefaultInit>().not() -> throw AssertionError(p0 = "cWithDefaultInit")
   }
-  useUnit(fn = CWithVararg::<init>)
+  useUnit(fn = local fun <init>() {
+    CWithVararg()
+  }
+)
   when {
     <get-cWithVarargInit>().not() -> throw AssertionError(p0 = "cWithVarargInit")
   }
