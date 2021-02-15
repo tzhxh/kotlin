@@ -1,0 +1,73 @@
+fun useUnit(fn: Function0<Unit>) {
+  fn.invoke()
+}
+
+var cInit: Boolean
+  field = false
+  get
+  set
+
+class C {
+  constructor() /* primary */ {
+    super/*Any*/()
+    /* <init>() */
+
+  }
+
+  init {
+    <set-cInit>(<set-?> = true)
+  }
+
+}
+
+var cWithDefaultInit: Boolean
+  field = false
+  get
+  set
+
+class CWithDefault {
+  constructor(x: Int = 1) /* primary */ {
+    super/*Any*/()
+    /* <init>() */
+
+  }
+
+  init {
+    <set-cWithDefaultInit>(<set-?> = true)
+  }
+
+}
+
+var cWithVarargInit: Boolean
+  field = false
+  get
+  set
+
+class CWithVararg {
+  constructor(vararg x: Int) /* primary */ {
+    super/*Any*/()
+    /* <init>() */
+
+  }
+
+  init {
+    <set-cWithVarargInit>(<set-?> = true)
+  }
+
+}
+
+fun box(): String {
+  useUnit(fn = C::<init>)
+  when {
+    <get-cInit>().not() -> throw AssertionError(p0 = "cInit")
+  }
+  useUnit(fn = CWithDefault::<init>)
+  when {
+    <get-cWithDefaultInit>().not() -> throw AssertionError(p0 = "cWithDefaultInit")
+  }
+  useUnit(fn = CWithVararg::<init>)
+  when {
+    <get-cWithVarargInit>().not() -> throw AssertionError(p0 = "cWithVarargInit")
+  }
+  return "OK"
+}
