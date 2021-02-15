@@ -302,17 +302,17 @@ fun case_19(b: Boolean) {
         }
     } else null
 
-    if (a != null !is Boolean && a<!UNSAFE_CALL!>.<!>B19 != null is Boolean && a<!UNSAFE_CALL!>.<!>B19<!UNSAFE_CALL!>.<!>C19 != null is Boolean && a<!UNSAFE_CALL!>.<!>B19<!UNSAFE_CALL!>.<!>C19<!UNSAFE_CALL!>.<!>D19 != null == null && a<!UNSAFE_CALL!>.<!>B19<!UNSAFE_CALL!>.<!>C19<!UNSAFE_CALL!>.<!>D19<!UNSAFE_CALL!>.<!>x != null !== null) {
-        a<!UNSAFE_CALL!>.<!>B19<!UNSAFE_CALL!>.<!>C19<!UNSAFE_CALL!>.<!>D19<!UNSAFE_CALL!>.<!>x
-        a<!UNSAFE_CALL!>.<!>B19<!UNSAFE_CALL!>.<!>C19<!UNSAFE_CALL!>.<!>D19<!UNSAFE_CALL!>.<!>x<!UNSAFE_CALL!>.<!>equals(null)
-        a<!UNSAFE_CALL!>.<!>B19<!UNSAFE_CALL!>.<!>C19<!UNSAFE_CALL!>.<!>D19<!UNSAFE_CALL!>.<!>x.propT
-        a<!UNSAFE_CALL!>.<!>B19<!UNSAFE_CALL!>.<!>C19<!UNSAFE_CALL!>.<!>D19<!UNSAFE_CALL!>.<!>x<!UNSAFE_CALL!>.<!>propAny
-        a<!UNSAFE_CALL!>.<!>B19<!UNSAFE_CALL!>.<!>C19<!UNSAFE_CALL!>.<!>D19<!UNSAFE_CALL!>.<!>x.propNullableT
-        a<!UNSAFE_CALL!>.<!>B19<!UNSAFE_CALL!>.<!>C19<!UNSAFE_CALL!>.<!>D19<!UNSAFE_CALL!>.<!>x.propNullableAny
-        a<!UNSAFE_CALL!>.<!>B19<!UNSAFE_CALL!>.<!>C19<!UNSAFE_CALL!>.<!>D19<!UNSAFE_CALL!>.<!>x.funT()
-        a<!UNSAFE_CALL!>.<!>B19<!UNSAFE_CALL!>.<!>C19<!UNSAFE_CALL!>.<!>D19<!UNSAFE_CALL!>.<!>x<!UNSAFE_CALL!>.<!>funAny()
-        a<!UNSAFE_CALL!>.<!>B19<!UNSAFE_CALL!>.<!>C19<!UNSAFE_CALL!>.<!>D19<!UNSAFE_CALL!>.<!>x.funNullableT()
-        a<!UNSAFE_CALL!>.<!>B19<!UNSAFE_CALL!>.<!>C19<!UNSAFE_CALL!>.<!>D19<!UNSAFE_CALL!>.<!>x.funNullableAny()
+    if (a != null !is Boolean && a<!UNSAFE_CALL!>.<!>B19 != null is Boolean && a<!UNSAFE_CALL!>.<!>B19.<!UNRESOLVED_REFERENCE!>C19<!> != null is Boolean && a<!UNSAFE_CALL!>.<!>B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!> != null == null && a<!UNSAFE_CALL!>.<!>B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.<!UNRESOLVED_REFERENCE!>x<!> != null !== null) {
+        a<!UNSAFE_CALL!>.<!>B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.<!UNRESOLVED_REFERENCE!>x<!>
+        a<!UNSAFE_CALL!>.<!>B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.<!UNRESOLVED_REFERENCE!>x<!>.equals(null)
+        a<!UNSAFE_CALL!>.<!>B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.<!UNRESOLVED_REFERENCE!>x<!>.<!INAPPLICABLE_CANDIDATE!>propT<!>
+        a<!UNSAFE_CALL!>.<!>B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.<!UNRESOLVED_REFERENCE!>x<!>.propAny
+        a<!UNSAFE_CALL!>.<!>B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.<!UNRESOLVED_REFERENCE!>x<!>.<!INAPPLICABLE_CANDIDATE!>propNullableT<!>
+        a<!UNSAFE_CALL!>.<!>B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.<!UNRESOLVED_REFERENCE!>x<!>.propNullableAny
+        a<!UNSAFE_CALL!>.<!>B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.<!UNRESOLVED_REFERENCE!>x<!>.<!INAPPLICABLE_CANDIDATE!>funT<!>()
+        a<!UNSAFE_CALL!>.<!>B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.<!UNRESOLVED_REFERENCE!>x<!>.funAny()
+        a<!UNSAFE_CALL!>.<!>B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.<!UNRESOLVED_REFERENCE!>x<!>.<!INAPPLICABLE_CANDIDATE!>funNullableT<!>()
+        a<!UNSAFE_CALL!>.<!>B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.<!UNRESOLVED_REFERENCE!>x<!>.funNullableAny()
     }
 }
 
@@ -328,17 +328,17 @@ fun case_20(b: Boolean) {
         }
     }
 
-    if (a.B19.C19.D19 !== null !is Boolean) {
-        a.B19.C19.D19
-        a.B19.C19.D19<!UNSAFE_CALL!>.<!>equals(null)
-        a.B19.C19.D19.propT
-        a.B19.C19.D19<!UNSAFE_CALL!>.<!>propAny
-        a.B19.C19.D19.propNullableT
-        a.B19.C19.D19.propNullableAny
-        a.B19.C19.D19.funT()
-        a.B19.C19.D19<!UNSAFE_CALL!>.<!>funAny()
-        a.B19.C19.D19.funNullableT()
-        a.B19.C19.D19.funNullableAny()
+    if (a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!> !== null !is Boolean) {
+        a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>
+        a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.equals(null)
+        a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.<!INAPPLICABLE_CANDIDATE!>propT<!>
+        a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.propAny
+        a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.<!INAPPLICABLE_CANDIDATE!>propNullableT<!>
+        a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.propNullableAny
+        a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.<!INAPPLICABLE_CANDIDATE!>funT<!>()
+        a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.funAny()
+        a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.<!INAPPLICABLE_CANDIDATE!>funNullableT<!>()
+        a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.funNullableAny()
     }
 }
 

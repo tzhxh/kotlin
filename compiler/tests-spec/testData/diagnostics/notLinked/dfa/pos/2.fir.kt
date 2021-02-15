@@ -124,17 +124,17 @@ fun case_5(b: Boolean) {
         }
     } else null
 
-    if (a != null && a.B5 != null && a.B5.C5 != null && a.B5.C5.D5 != null && a.B5.C5.D5.x != null && b || false) {
-        a<!UNSAFE_CALL!>.<!>B5<!UNSAFE_CALL!>.<!>C5<!UNSAFE_CALL!>.<!>D5<!UNSAFE_CALL!>.<!>x
-        a<!UNSAFE_CALL!>.<!>B5<!UNSAFE_CALL!>.<!>C5<!UNSAFE_CALL!>.<!>D5<!UNSAFE_CALL!>.<!>x<!UNSAFE_CALL!>.<!>equals(null)
-        a<!UNSAFE_CALL!>.<!>B5<!UNSAFE_CALL!>.<!>C5<!UNSAFE_CALL!>.<!>D5<!UNSAFE_CALL!>.<!>x.propT
-        a<!UNSAFE_CALL!>.<!>B5<!UNSAFE_CALL!>.<!>C5<!UNSAFE_CALL!>.<!>D5<!UNSAFE_CALL!>.<!>x<!UNSAFE_CALL!>.<!>propAny
-        a<!UNSAFE_CALL!>.<!>B5<!UNSAFE_CALL!>.<!>C5<!UNSAFE_CALL!>.<!>D5<!UNSAFE_CALL!>.<!>x.propNullableT
-        a<!UNSAFE_CALL!>.<!>B5<!UNSAFE_CALL!>.<!>C5<!UNSAFE_CALL!>.<!>D5<!UNSAFE_CALL!>.<!>x.propNullableAny
-        a<!UNSAFE_CALL!>.<!>B5<!UNSAFE_CALL!>.<!>C5<!UNSAFE_CALL!>.<!>D5<!UNSAFE_CALL!>.<!>x.funT()
-        a<!UNSAFE_CALL!>.<!>B5<!UNSAFE_CALL!>.<!>C5<!UNSAFE_CALL!>.<!>D5<!UNSAFE_CALL!>.<!>x<!UNSAFE_CALL!>.<!>funAny()
-        a<!UNSAFE_CALL!>.<!>B5<!UNSAFE_CALL!>.<!>C5<!UNSAFE_CALL!>.<!>D5<!UNSAFE_CALL!>.<!>x.funNullableT()
-        a<!UNSAFE_CALL!>.<!>B5<!UNSAFE_CALL!>.<!>C5<!UNSAFE_CALL!>.<!>D5<!UNSAFE_CALL!>.<!>x.funNullableAny()
+    if (a != null && a.B5 != null && a.B5.<!UNRESOLVED_REFERENCE!>C5<!> != null && a.B5.<!UNRESOLVED_REFERENCE!>C5<!>.<!UNRESOLVED_REFERENCE!>D5<!> != null && a.B5.<!UNRESOLVED_REFERENCE!>C5<!>.<!UNRESOLVED_REFERENCE!>D5<!>.<!UNRESOLVED_REFERENCE!>x<!> != null && b || false) {
+        a<!UNSAFE_CALL!>.<!>B5.<!UNRESOLVED_REFERENCE!>C5<!>.<!UNRESOLVED_REFERENCE!>D5<!>.<!UNRESOLVED_REFERENCE!>x<!>
+        a<!UNSAFE_CALL!>.<!>B5.<!UNRESOLVED_REFERENCE!>C5<!>.<!UNRESOLVED_REFERENCE!>D5<!>.<!UNRESOLVED_REFERENCE!>x<!>.equals(null)
+        a<!UNSAFE_CALL!>.<!>B5.<!UNRESOLVED_REFERENCE!>C5<!>.<!UNRESOLVED_REFERENCE!>D5<!>.<!UNRESOLVED_REFERENCE!>x<!>.<!INAPPLICABLE_CANDIDATE!>propT<!>
+        a<!UNSAFE_CALL!>.<!>B5.<!UNRESOLVED_REFERENCE!>C5<!>.<!UNRESOLVED_REFERENCE!>D5<!>.<!UNRESOLVED_REFERENCE!>x<!>.propAny
+        a<!UNSAFE_CALL!>.<!>B5.<!UNRESOLVED_REFERENCE!>C5<!>.<!UNRESOLVED_REFERENCE!>D5<!>.<!UNRESOLVED_REFERENCE!>x<!>.<!INAPPLICABLE_CANDIDATE!>propNullableT<!>
+        a<!UNSAFE_CALL!>.<!>B5.<!UNRESOLVED_REFERENCE!>C5<!>.<!UNRESOLVED_REFERENCE!>D5<!>.<!UNRESOLVED_REFERENCE!>x<!>.propNullableAny
+        a<!UNSAFE_CALL!>.<!>B5.<!UNRESOLVED_REFERENCE!>C5<!>.<!UNRESOLVED_REFERENCE!>D5<!>.<!UNRESOLVED_REFERENCE!>x<!>.<!INAPPLICABLE_CANDIDATE!>funT<!>()
+        a<!UNSAFE_CALL!>.<!>B5.<!UNRESOLVED_REFERENCE!>C5<!>.<!UNRESOLVED_REFERENCE!>D5<!>.<!UNRESOLVED_REFERENCE!>x<!>.funAny()
+        a<!UNSAFE_CALL!>.<!>B5.<!UNRESOLVED_REFERENCE!>C5<!>.<!UNRESOLVED_REFERENCE!>D5<!>.<!UNRESOLVED_REFERENCE!>x<!>.<!INAPPLICABLE_CANDIDATE!>funNullableT<!>()
+        a<!UNSAFE_CALL!>.<!>B5.<!UNRESOLVED_REFERENCE!>C5<!>.<!UNRESOLVED_REFERENCE!>D5<!>.<!UNRESOLVED_REFERENCE!>x<!>.funNullableAny()
     }
 }
 

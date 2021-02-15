@@ -40,7 +40,7 @@ FILE: O.kt
                             lval y: R|ft<@FlexibleNullability kotlin/String, kotlin/String?>!| = this@R|/O.Derived|.R|/Base.foo|()
                         }
 
-                        public final val oo: R|<anonymous>| = object : R|kotlin/Any| {
+                        public final val oo: R|kotlin/Any| = object : R|kotlin/Any| {
                             private constructor(): R|<anonymous>| {
                                 super<R|kotlin/Any|>()
                             }
@@ -50,7 +50,7 @@ FILE: O.kt
 
                         }
 
-                            public get(): R|<anonymous>|
+                            public get(): R|kotlin/Any|
 
                     }
 

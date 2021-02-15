@@ -8,5 +8,5 @@ fun foo() {
         }
     }
 
-    checkSubtype<Int>(a.b.c)
+    <!INAPPLICABLE_CANDIDATE!>checkSubtype<!><Int>(a.b.<!UNRESOLVED_REFERENCE!>c<!>)
 }

@@ -12,8 +12,10 @@ import org.jetbrains.kotlin.fir.declarations.classId
 import org.jetbrains.kotlin.fir.diagnostics.ConeSimpleDiagnostic
 import org.jetbrains.kotlin.fir.resolve.fullyExpandedType
 import org.jetbrains.kotlin.fir.resolve.toSymbol
+import org.jetbrains.kotlin.fir.resolve.toSymbolOrError
 import org.jetbrains.kotlin.fir.symbols.AbstractFirBasedSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.ConeClassLookupTagWithFixedSymbol
+import org.jetbrains.kotlin.fir.symbols.impl.FirAnonymousObjectSymbol
 import org.jetbrains.kotlin.fir.types.builder.buildErrorTypeRef
 import org.jetbrains.kotlin.fir.types.builder.buildResolvedTypeRef
 import org.jetbrains.kotlin.fir.types.impl.ConeClassLikeTypeImpl
@@ -315,7 +317,7 @@ private fun FirTypeRef.hideLocalTypeIfNeeded(
             }
         }
         val superType = firClass.superTypeRefs.single()
-        if (superType is FirResolvedTypeRef && !superType.isAny) {
+        if (superType is FirResolvedTypeRef /*&& !superType.isAny*/) {
             return superType
         }
     }

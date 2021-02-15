@@ -17,7 +17,7 @@ fun main() {
     useBoolean(a.z)
 
     class B {
-        fun foo(x: Int) = inner.w
+        fun foo(x: Int) = inner.<!UNRESOLVED_REFERENCE!>w<!>
         fun bar(y: Int) = this.hashCode() + y > 0
 
         val inner = Inner()
@@ -32,6 +32,6 @@ fun main() {
 
     useBoolean(b.foo(1))
     useBoolean(b.bar(1))
-    useBoolean(b.inner.w)
-    useBoolean(b.inner.z)
+    useBoolean(b.inner.<!UNRESOLVED_REFERENCE!>w<!>)
+    useBoolean(b.inner.<!UNRESOLVED_REFERENCE!>z<!>)
 }

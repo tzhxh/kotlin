@@ -63,8 +63,8 @@ fun case_6(x: EmptyClass) {
 
 // TESTCASE NUMBER: 7
 fun case_7() {
-    if (anonymousTypeProperty == null || <!DEBUG_INFO_EXPRESSION_TYPE("<anonymous> & <anonymous>")!>anonymousTypeProperty<!> == null) {
-        <!DEBUG_INFO_EXPRESSION_TYPE("<anonymous>")!>anonymousTypeProperty<!>
+    if (anonymousTypeProperty == null || <!DEBUG_INFO_EXPRESSION_TYPE("kotlin.Any & kotlin.Any")!>anonymousTypeProperty<!> == null) {
+        <!DEBUG_INFO_EXPRESSION_TYPE("kotlin.Any")!>anonymousTypeProperty<!>
     }
 }
 
@@ -219,8 +219,8 @@ fun case_19(b: Boolean) {
         }
     } else null
 
-    if (a != null && a.B19 != null && a.B19.C19 != null && a.B19.C19.D19 != null && a.B19.C19.D19.x == null) {
-        a.B19.C19.D19.x
+    if (a != null && a.B19 != null && a.B19.<!UNRESOLVED_REFERENCE!>C19<!> != null && a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!> != null && a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.<!UNRESOLVED_REFERENCE!>x<!> == null) {
+        a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.<!UNRESOLVED_REFERENCE!>x<!>
     }
 }
 
@@ -234,8 +234,8 @@ fun case_20() {
         }
     }
 
-    if (a.B19.C19.D19 === null) {
-        a.B19.C19.D19
+    if (a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!> === null) {
+        a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>
     }
 }
 

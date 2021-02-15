@@ -217,8 +217,8 @@ fun case_19(b: Boolean) {
         }
     } else null
 
-    if (a != null && a.B19 != null && a.B19.C19 != null && a.B19.C19.D19 != null && a.B19.C19.D19.x == null) {
-        a.B19.C19.D19.x
+    if (a != null && a.B19 != null && a.B19.<!UNRESOLVED_REFERENCE!>C19<!> != null && a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!> != null && a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.<!UNRESOLVED_REFERENCE!>x<!> == null) {
+        a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>.<!UNRESOLVED_REFERENCE!>x<!>
     }
 }
 
@@ -234,8 +234,8 @@ fun case_20(b: Boolean) {
         }
     }
 
-    if (a.B19.C19.D19 == null) {
-        a.B19.C19.D19
+    if (a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!> == null) {
+        a.B19.<!UNRESOLVED_REFERENCE!>C19<!>.<!UNRESOLVED_REFERENCE!>D19<!>
     }
 }
 
