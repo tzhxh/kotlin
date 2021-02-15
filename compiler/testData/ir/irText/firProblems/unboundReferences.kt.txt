@@ -1,0 +1,83 @@
+class C {
+  constructor(expected: Int) /* primary */ {
+    super/*Any*/()
+    /* <init>() */
+
+  }
+
+  val expected: Int
+    field = expected
+    get
+
+  fun memberVararg(i: Int, vararg s: String) {
+  }
+
+  fun memberDefault(i: Int, s: String = "") {
+  }
+
+  fun memberBoth(i: Int, s: String = "", vararg t: String) {
+  }
+
+}
+
+fun C.extensionVararg(i: Int, vararg s: String) {
+  <this>.memberVararg(i = i, s = [*s])
+}
+
+fun C.extensionDefault(i: Int, s: String = "") {
+  <this>.memberDefault(i = i, s = s)
+}
+
+fun C.extensionBoth(i: Int, s: String = "", vararg t: String) {
+  <this>.memberBoth(i = i, s = s, t = [*t])
+}
+
+fun test(f: @ExtensionFunctionType Function2<C, Int, Unit>, p: Int) {
+  return f.invoke(p1 = C(expected = p), p2 = p)
+}
+
+fun box(): String {
+  test(f = { // BLOCK
+    local fun memberVararg(p0: C, p1: Int) {
+      p0.memberVararg(i = p1)
+    }
+
+    ::memberVararg
+  }, p = 43)
+  test(f = { // BLOCK
+    local fun memberDefault(p0: C, p1: Int) {
+      p0.memberDefault(i = p1)
+    }
+
+    ::memberDefault
+  }, p = 43)
+  test(f = { // BLOCK
+    local fun memberBoth(p0: C, p1: Int) {
+      p0.memberBoth(i = p1)
+    }
+
+    ::memberBoth
+  }, p = 43)
+  test(f = { // BLOCK
+    local fun extensionVararg(p0: C, p1: Int) {
+      p0.extensionVararg(i = p1)
+    }
+
+    ::extensionVararg
+  }, p = 43)
+  test(f = { // BLOCK
+    local fun extensionDefault(p0: C, p1: Int) {
+      p0.extensionDefault(i = p1)
+    }
+
+    ::extensionDefault
+  }, p = 43)
+  test(f = { // BLOCK
+    local fun extensionBoth(p0: C, p1: Int) {
+      p0.extensionBoth(i = p1)
+    }
+
+    ::extensionBoth
+  }, p = 43)
+  return "OK"
+}
