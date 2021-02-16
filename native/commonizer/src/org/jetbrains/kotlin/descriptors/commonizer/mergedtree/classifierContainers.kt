@@ -12,14 +12,15 @@ import org.jetbrains.kotlin.descriptors.commonizer.SharedTarget
 import org.jetbrains.kotlin.descriptors.commonizer.CommonizerTarget
 import org.jetbrains.kotlin.descriptors.commonizer.ModulesProvider
 import org.jetbrains.kotlin.descriptors.commonizer.cir.CirEntityId
+import org.jetbrains.kotlin.descriptors.commonizer.cir.CirName
 import org.jetbrains.kotlin.descriptors.commonizer.cir.CirPackageName
+import org.jetbrains.kotlin.descriptors.commonizer.utils.compact
 import org.jetbrains.kotlin.descriptors.commonizer.utils.isUnderKotlinNativeSyntheticPackages
 import org.jetbrains.kotlin.descriptors.commonizer.utils.resolveClassOrTypeAlias
 import org.jetbrains.kotlin.library.metadata.parsePackageFragment
 import org.jetbrains.kotlin.metadata.ProtoBuf
 import org.jetbrains.kotlin.metadata.deserialization.NameResolverImpl
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
-import org.jetbrains.kotlin.serialization.deserialization.getName
 import org.jetbrains.kotlin.storage.StorageManager
 import org.jetbrains.kotlin.storage.getValue
 
@@ -135,7 +136,11 @@ interface CirProvidedClassifiers {
 }
 
 internal class CirProvidedClassifiersImpl(modulesProvider: ModulesProvider) : CirProvidedClassifiers {
+    private val classifiers: Map<CirPackageName, Set<CirEntityId>>
+
     init {
+        val result = mutableMapOf<CirPackageName, MutableSet<CirEntityId>>()
+
         modulesProvider.loadModuleInfos().forEach { moduleInfo ->
             val metadata = modulesProvider.loadModuleMetadata(moduleInfo.name)
 
@@ -152,25 +157,33 @@ internal class CirProvidedClassifiersImpl(modulesProvider: ModulesProvider) : Ci
                     if (classes.isEmpty() && typeAliases.isEmpty())
                         break // this and next package fragments do not contain classifiers
 
+                    val packageName = CirPackageName.create(packageFqName)
                     val nameResolver = NameResolverImpl(packageFragment.strings, packageFragment.qualifiedNames)
 
                     for (clazz in classes) {
                         if (!nameResolver.isLocalClassName(clazz.fqName)) {
-                            val qualifiedClassName = nameResolver.getQualifiedClassName(clazz.fqName)
-                            val className = nameResolver.getString(clazz.fqName)
-                            print("")
+                            val classId = CirEntityId.create(nameResolver.getQualifiedClassName(clazz.fqName))
+                            check(classId.packageName == packageName)
+                            result.getOrPut(packageName) { THashSet() } += classId
                         }
                     }
 
                     for (typeAlias in typeAliases) {
-                        val typeAliasName = nameResolver.getString(typeAlias.name)
+                        val typeAliasId = CirEntityId.create(packageName, CirName.create(nameResolver.getString(typeAlias.name)))
+                        result.getOrPut(packageName) { THashSet() } += typeAliasId
                     }
                 }
             }
         }
+
+        classifiers = result.compact()
     }
 
-    override fun hasClassifier(classifierId: CirEntityId): Boolean {
-        TODO("Not yet implemented")
+    override fun hasClassifier(classifierId: CirEntityId): Boolean =
+        classifiers[classifierId.packageName]?.contains(classifierId) == true
+
+    companion object {
+        fun create(modulesProvider: ModulesProvider?): CirProvidedClassifiers =
+            if (modulesProvider != null) CirProvidedClassifiersImpl(modulesProvider) else CirProvidedClassifiers.EMPTY
     }
 }
