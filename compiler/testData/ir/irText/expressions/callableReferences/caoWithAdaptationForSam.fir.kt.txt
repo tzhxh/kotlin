@@ -87,4 +87,3 @@ fun test6(a: Any) {
     <<array>>.set(i = <<index_0>>, newValue = <<array>>.get(i = <<index_0>>).plus(other = 1))
   }
 }
-
