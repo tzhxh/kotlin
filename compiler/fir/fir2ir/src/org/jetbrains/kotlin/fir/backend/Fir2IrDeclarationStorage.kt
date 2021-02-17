@@ -74,6 +74,8 @@ class Fir2IrDeclarationStorage(
 
     private val propertyCache = mutableMapOf<FirProperty, IrProperty>()
 
+    private val fakeOverridesInClass = mutableMapOf<IrClass, MutableMap<FirCallableDeclaration<*>, FirCallableDeclaration<*>>>()
+
     // For pure fields (from Java) only
     private val fieldToPropertyCache = mutableMapOf<FirField, IrProperty>()
 
@@ -542,6 +544,16 @@ class Fir2IrDeclarationStorage(
         return created
     }
 
+    fun getOrCreateIrConstructor(
+        constructor: FirConstructor,
+        irParent: IrClass,
+        origin: IrDeclarationOrigin = IrDeclarationOrigin.DEFINED,
+        isLocal: Boolean = false
+    ): IrConstructor {
+        getCachedIrConstructor(constructor)?.let { return it }
+        return createIrConstructor(constructor, irParent, origin, isLocal)
+    }
+
     private fun declareIrAccessor(
         signature: IdSignature?,
         containerSource: DeserializedContainerSource?,
@@ -621,7 +633,7 @@ class Fir2IrDeclarationStorage(
                 }
                 if (correspondingProperty is Fir2IrLazyProperty && !isFakeOverride && thisReceiverOwner != null) {
                     this.overriddenSymbols = correspondingProperty.fir.generateOverriddenAccessorSymbols(
-                        correspondingProperty.containingClass, !isSetter, session, scopeSession, declarationStorage
+                        correspondingProperty.containingClass, !isSetter, session, scopeSession, declarationStorage, fakeOverrideGenerator
                     )
                 }
             }
@@ -823,6 +835,22 @@ class Fir2IrDeclarationStorage(
         delegatedReverseCache[irProperty] = property
     }
 
+    internal fun saveFakeOverrideInClass(
+        irClass: IrClass,
+        callableDeclaration: FirCallableDeclaration<*>,
+        fakeOverride: FirCallableDeclaration<*>
+    ) {
+        fakeOverridesInClass.getOrPut(irClass, ::mutableMapOf)[callableDeclaration] = fakeOverride
+    }
+
+    fun getFakeOverrideInClass(
+        irClass: IrClass,
+        callableDeclaration: FirCallableDeclaration<*>
+    ): FirCallableDeclaration<*>? {
+        irClass.declarations
+        return fakeOverridesInClass[irClass]?.get(callableDeclaration)
+    }
+
     fun getCachedIrField(field: FirField): IrField? = fieldCache[field]
 
     fun createIrFieldAndDelegatedMembers(field: FirField, owner: FirClass<*>, irClass: IrClass): IrField {
@@ -1007,7 +1035,7 @@ class Fir2IrDeclarationStorage(
                 getCachedIrFunction(fir)?.let { return it.symbol }
                 val irParent = findIrParent(fir)
                 val parentOrigin = (irParent as? IrDeclaration)?.origin ?: IrDeclarationOrigin.DEFINED
-                val declarationOrigin = computeDeclarationOrigin(firFunctionSymbol, parentOrigin, irParent)
+                val declarationOrigin = computeDeclarationOrigin(firFunctionSymbol, parentOrigin)
                 createIrFunction(fir, irParent, origin = declarationOrigin).symbol
             }
             is FirSimpleFunction -> {
@@ -1094,17 +1122,32 @@ class Fir2IrDeclarationStorage(
             signature
         }?.let { return it.symbol }
         val parentOrigin = (irParent as? IrDeclaration)?.origin ?: IrDeclarationOrigin.DEFINED
-        val declarationOrigin = computeDeclarationOrigin(firSymbol, parentOrigin, irParent)
+        val declarationOrigin = computeDeclarationOrigin(firSymbol, parentOrigin)
         // TODO: package fragment members (?)
-        val parent = irParent
-        if (parent is Fir2IrLazyClass) {
-            assert(parentOrigin != IrDeclarationOrigin.DEFINED) {
-                "Should not have reference to public API uncached property from source code"
+        when (val parent = irParent) {
+            is Fir2IrLazyClass -> {
+                assert(parentOrigin != IrDeclarationOrigin.DEFINED) {
+                    "Should not have reference to public API uncached property from source code"
+                }
+                signature?.let {
+                    return createIrLazyDeclaration(it, parent, declarationOrigin).symbol
+                }
             }
-            signature?.let {
-                return createIrLazyDeclaration(it, parent, declarationOrigin).symbol
+            is IrLazyClass -> {
+                val unwrapped = fir.unwrapFakeOverrides()
+                if (unwrapped !== fir) {
+                    when (unwrapped) {
+                        is FirSimpleFunction -> {
+                            return getIrFunctionSymbol(unwrapped.symbol)
+                        }
+                        is FirProperty -> {
+                            return getIrPropertySymbol(unwrapped.symbol)
+                        }
+                    }
+                }
             }
         }
+
         return createIrDeclaration(irParent, declarationOrigin).apply {
             (this as IrDeclaration).setAndModifyParent(irParent)
         }.symbol
@@ -1112,16 +1155,13 @@ class Fir2IrDeclarationStorage(
 
     private fun computeDeclarationOrigin(
         symbol: FirCallableSymbol<*>,
-        parentOrigin: IrDeclarationOrigin,
-        irParent: IrDeclarationParent?
+        parentOrigin: IrDeclarationOrigin
     ): IrDeclarationOrigin {
-        return if (irParent.isSourceClass() && (symbol.fir.isIntersectionOverride || symbol.fir.isSubstitutionOverride))
+        return if (symbol.fir.isIntersectionOverride || symbol.fir.isSubstitutionOverride)
             IrDeclarationOrigin.FAKE_OVERRIDE
         else
             parentOrigin
     }
-
-    private fun IrDeclarationParent?.isSourceClass() = this is IrClass && this !is Fir2IrLazyClass && this !is IrLazyClass
 
     fun getIrFieldSymbol(firFieldSymbol: FirFieldSymbol): IrSymbol {
         val fir = firFieldSymbol.fir
@@ -1184,7 +1224,9 @@ class Fir2IrDeclarationStorage(
     }
 
     private fun IrMutableAnnotationContainer.convertAnnotationsFromLibrary(firAnnotationContainer: FirAnnotationContainer) {
-        if ((firAnnotationContainer as? FirDeclaration)?.isFromLibrary == true) {
+        if ((firAnnotationContainer as? FirDeclaration)?.isFromLibrary == true ||
+            (firAnnotationContainer is FirCallableMemberDeclaration<*> && firAnnotationContainer.isSubstitutionOrIntersectionOverride)
+        ) {
             annotationGenerator.generate(this, firAnnotationContainer)
         }
     }

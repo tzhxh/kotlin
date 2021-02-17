@@ -12,10 +12,10 @@ import org.jetbrains.kotlin.backend.common.lower.parentsWithSelf
 import org.jetbrains.kotlin.backend.jvm.JvmBackendContext
 import org.jetbrains.kotlin.backend.jvm.JvmLoweredDeclarationOrigin
 import org.jetbrains.kotlin.backend.jvm.ir.*
+import org.jetbrains.kotlin.backend.jvm.isMappedBuiltIn
 import org.jetbrains.kotlin.backend.jvm.lower.inlineclasses.unboxInlineClass
 import org.jetbrains.kotlin.backend.jvm.lower.suspendFunctionOriginal
 import org.jetbrains.kotlin.builtins.StandardNames
-import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
 import org.jetbrains.kotlin.codegen.JvmCodegenUtil
 import org.jetbrains.kotlin.codegen.replaceValueParametersIn
 import org.jetbrains.kotlin.codegen.signature.BothSignatureWriter
@@ -453,16 +453,12 @@ class MethodSignatureMapper(private val context: JvmBackendContext) {
             ?: irFunction.getDifferentNameForJvmBuiltinFunction()
     }
 
-    private val IrSimpleFunction.isBuiltIn: Boolean
-        get() = getPackageFragment()?.fqName == StandardNames.BUILT_INS_PACKAGE_FQ_NAME ||
-                parent.safeAs<IrClass>()?.fqNameWhenAvailable?.toUnsafe()?.let(JavaToKotlinClassMap::mapKotlinToJava) != null
-
     // From BuiltinMethodsWithDifferentJvmName.isBuiltinFunctionWithDifferentNameInJvm, BuiltinMethodsWithDifferentJvmName.getJvmName
     private fun IrSimpleFunction.getDifferentNameForJvmBuiltinFunction(): String? {
         if (name !in SpecialGenericSignatures.ORIGINAL_SHORT_NAMES) return null
-        if (!isBuiltIn) return null
+        if (!isMappedBuiltIn) return null
         return allOverridden(includeSelf = true)
-            .filter { it.isBuiltIn }
+            .filter { it.isMappedBuiltIn }
             .mapNotNull {
                 val signature = it.computeJvmSignature()
                 SpecialGenericSignatures.SIGNATURE_TO_JVM_REPRESENTATION_NAME[signature]?.asString()
@@ -473,7 +469,7 @@ class MethodSignatureMapper(private val context: JvmBackendContext) {
     private fun IrSimpleFunction.getBuiltinSpecialPropertyGetterName(): String? {
         val propertyName = correspondingPropertySymbol?.owner?.name ?: return null
         if (propertyName !in BuiltinSpecialProperties.SPECIAL_SHORT_NAMES) return null
-        if (!isBuiltIn) return null
+        if (!isMappedBuiltIn) return null
         return allOverridden(includeSelf = true)
             .mapNotNull {
                 val property = it.correspondingPropertySymbol!!.owner

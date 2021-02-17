@@ -60,6 +60,8 @@ object StandardClassIds {
 
     val Function = "Function".baseId()
 
+    val Collection = ClassId(BASE_KOTLIN_PACKAGE.child(Name.identifier("collections")), Name.identifier("Collection"))
+
     fun byName(name: String) = name.baseId()
     fun reflectByName(name: String) = name.reflectId()
 

@@ -18,8 +18,10 @@ import org.jetbrains.kotlin.fir.declarations.impl.FirDeclarationStatusImpl
 import org.jetbrains.kotlin.fir.declarations.impl.FirResolvedDeclarationStatusImpl
 import org.jetbrains.kotlin.fir.declarations.synthetic.FirSyntheticProperty
 import org.jetbrains.kotlin.fir.declarations.synthetic.buildSyntheticProperty
+import org.jetbrains.kotlin.fir.initialSignatureAttr
 import org.jetbrains.kotlin.fir.java.JavaTypeParameterStack
 import org.jetbrains.kotlin.fir.java.declarations.*
+import org.jetbrains.kotlin.fir.java.toConeKotlinTypeProbablyFlexible
 import org.jetbrains.kotlin.fir.render
 import org.jetbrains.kotlin.fir.scopes.jvm.computeJvmDescriptor
 import org.jetbrains.kotlin.fir.symbols.CallableId
@@ -55,7 +57,13 @@ class FirSignatureEnhancement(
         function: FirFunctionSymbol<*>,
         name: Name?
     ): FirFunctionSymbol<*> {
-        return enhancements.getOrPut(function) { enhance(function, name) } as FirFunctionSymbol<*>
+        return enhancements.getOrPut(function) {
+            enhance(function, name).also { enhancedVersion ->
+                (enhancedVersion.fir.initialSignatureAttr as? FirSimpleFunction)?.let {
+                    enhancedVersion.fir.initialSignatureAttr = enhancedFunction(it.symbol, it.name).fir
+                }
+            }
+        } as FirFunctionSymbol<*>
     }
 
     fun enhancedProperty(property: FirVariableSymbol<*>, name: Name): FirVariableSymbol<*> {
@@ -110,7 +118,7 @@ class FirSignatureEnhancement(
                 val getterDelegate = firElement.getter.delegate
                 val enhancedGetterSymbol = if (getterDelegate is FirJavaMethod) {
                     enhanceMethod(
-                        getterDelegate, accessorSymbol.accessorId, accessorSymbol.accessorId.callableName
+                        getterDelegate, getterDelegate.symbol.callableId, getterDelegate.name,
                     )
                 } else {
                     getterDelegate.symbol
@@ -118,7 +126,7 @@ class FirSignatureEnhancement(
                 val setterDelegate = firElement.setter?.delegate
                 val enhancedSetterSymbol = if (setterDelegate is FirJavaMethod) {
                     enhanceMethod(
-                        setterDelegate, accessorSymbol.accessorId, accessorSymbol.accessorId.callableName
+                        setterDelegate, setterDelegate.symbol.callableId, setterDelegate.name,
                     )
                 } else {
                     setterDelegate?.symbol
@@ -158,7 +166,10 @@ class FirSignatureEnhancement(
         val memberContext = context.copyWithNewDefaultTypeQualifiers(typeQualifierResolver, jsr305State, firMethod.annotations)
 
         val predefinedEnhancementInfo =
-            SignatureBuildingComponents.signature(owner.symbol.classId, firMethod.computeJvmDescriptor()).let { signature ->
+            SignatureBuildingComponents.signature(
+                owner.symbol.classId,
+                firMethod.computeJvmDescriptor { it.toConeKotlinTypeProbablyFlexible(session, javaTypeParameterStack) }
+            ).let { signature ->
                 PREDEFINED_FUNCTION_ENHANCEMENT_INFO_BY_SIGNATURE[signature]
             }
 
@@ -301,6 +312,9 @@ class FirSignatureEnhancement(
         ownerParameter: FirJavaValueParameter,
         index: Int
     ): FirResolvedTypeRef {
+        if (ownerParameter.returnTypeRef is FirResolvedTypeRef) {
+            return ownerParameter.returnTypeRef as FirResolvedTypeRef
+        }
         val signatureParts = ownerFunction.partsForValueParameter(
             typeQualifierResolver,
             overriddenMembers,

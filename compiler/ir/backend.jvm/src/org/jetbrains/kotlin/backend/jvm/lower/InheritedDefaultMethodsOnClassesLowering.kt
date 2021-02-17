@@ -17,6 +17,7 @@ import org.jetbrains.kotlin.backend.jvm.JvmBackendContext
 import org.jetbrains.kotlin.backend.jvm.JvmLoweredDeclarationOrigin
 import org.jetbrains.kotlin.backend.jvm.codegen.isJvmInterface
 import org.jetbrains.kotlin.backend.jvm.ir.*
+import org.jetbrains.kotlin.backend.jvm.isMappedBuiltIn
 import org.jetbrains.kotlin.builtins.StandardNames
 import org.jetbrains.kotlin.config.JvmDefaultMode
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
@@ -209,6 +210,7 @@ internal fun IrSimpleFunction.isDefinitelyNotDefaultImplsMethod(
     implementation: IrSimpleFunction? = resolveFakeOverride()
 ): Boolean =
     implementation == null ||
+            implementation.isMappedBuiltIn ||
             implementation.origin == IrDeclarationOrigin.IR_EXTERNAL_JAVA_DECLARATION_STUB ||
             implementation.isCompiledToJvmDefault(jvmDefaultMode) ||
             origin == IrDeclarationOrigin.FUNCTION_FOR_DEFAULT_PARAMETER ||
