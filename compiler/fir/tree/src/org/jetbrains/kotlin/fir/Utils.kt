@@ -65,7 +65,9 @@ fun <R : FirTypeRef> R.copyWithNewSourceKind(newKind: FirFakeSourceElementKind):
  * @receiver original source element
  * @param stepsToWholeQualifier distance between the original psi and the whole qualifier psi
  */
-fun FirRealPsiSourceElement<*>.getWholeQualifierSource(stepsToWholeQualifier: Int): FirRealPsiSourceElement<*> {
+fun FirSourceElement.getWholeQualifierSourceIfPossible(stepsToWholeQualifier: Int): FirSourceElement {
+    if (this !is FirRealPsiSourceElement<*>) return this
+
     val qualifiersChain = generateSequence(psi) { it.parent }
     val wholeQualifier = qualifiersChain.drop(stepsToWholeQualifier).first()
 

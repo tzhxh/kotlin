@@ -90,10 +90,8 @@ class FirQualifiedNameResolver(private val components: BodyResolveComponents) {
                 qualifierPartsToDrop += 1
             }
 
-            val fixedSource = (source as? FirRealPsiSourceElement<*>)?.getWholeQualifierSource(qualifierPartsToDrop) ?: source
-
             return buildResolvedQualifier {
-                this.source = fixedSource
+                this.source = source?.getWholeQualifierSourceIfPossible(qualifierPartsToDrop)
                 packageFqName = resolved.packageFqName
                 relativeClassFqName = resolved.relativeClassFqName
                 symbol = resolved.classSymbol
