@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.fir.*
 import org.jetbrains.kotlin.fir.declarations.FirAnonymousObject
 import org.jetbrains.kotlin.fir.diagnostics.ConeSimpleDiagnostic
 import org.jetbrains.kotlin.fir.resolve.fullyExpandedType
+import org.jetbrains.kotlin.fir.resolve.substitution.AbstractConeSubstitutor
 import org.jetbrains.kotlin.fir.resolve.toSymbol
 import org.jetbrains.kotlin.fir.symbols.AbstractFirBasedSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.ConeClassLookupTagWithFixedSymbol
@@ -263,7 +264,7 @@ fun FirTypeRef.approximatedIfNeededOrSelf(
         approximatedForPublicPosition(approximator)
     else
         this
-    return approximated.hideLocalTypeIfNeeded(containingCallableVisibility, isInlineFunction).withoutEnhancedNullability()
+    return approximated.hideLocalTypesIfNeeded(containingCallableVisibility, isInlineFunction).withoutEnhancedNullability()
 }
 
 fun FirTypeRef.approximatedForPublicPosition(approximator: AbstractTypeApproximator): FirTypeRef =
@@ -287,7 +288,7 @@ private fun ConeKotlinType.requiresApproximationInPublicPosition(): Boolean = co
  * acts like an implementing interface, is a better fit. In fact, exposing an anonymous object types is prohibited for certain cases,
  * e.g., KT-33917. We can also apply this to any local types.
  */
-private fun FirTypeRef.hideLocalTypeIfNeeded(
+private fun FirTypeRef.hideLocalTypesIfNeeded(
     containingCallableVisibility: Visibility?,
     isInlineFunction: Boolean = false
 ): FirTypeRef {
@@ -301,25 +302,44 @@ private fun FirTypeRef.hideLocalTypeIfNeeded(
         containingCallableVisibility == Visibilities.Internal ||
         (containingCallableVisibility == Visibilities.Private && isInlineFunction)
     ) {
-        val firClass =
-            (((this as? FirResolvedTypeRef)
-                ?.type as? ConeClassLikeType)
-                ?.lookupTag as? ConeClassLookupTagWithFixedSymbol)
-                ?.symbol?.fir
-        if (firClass !is FirAnonymousObject) {
-            // NB: local classes are acceptable here, but reported by EXPOSED_* checkers as errors
-            return this
-        }
-        if (firClass.superTypeRefs.size > 1) {
-            return buildErrorTypeRef {
-                diagnostic = ConeSimpleDiagnostic("Cannot hide local type ${firClass.render()}")
-            }
-        }
-        val superType = firClass.superTypeRefs.single()
-        if (superType is FirResolvedTypeRef) {
-            return superType
-        }
+        return hideLocalTypes()
     }
     return this
 }
 
+private class ConeLocalTypeSubstitutor : AbstractConeSubstitutor() {
+    override fun substituteType(type: ConeKotlinType): ConeKotlinType? {
+        val firClass =
+            ((type as? ConeClassLikeType)
+                ?.lookupTag as? ConeClassLookupTagWithFixedSymbol)
+                ?.symbol?.fir
+        if (firClass !is FirAnonymousObject) {
+            // NB: local classes are acceptable here, but reported by EXPOSED_* checkers as errors
+            return null
+        }
+        if (firClass.superTypeRefs.size > 1) {
+            val diagnostic = ConeSimpleDiagnostic("Cannot hide local type ${firClass.render()}")
+            return ConeClassErrorType(diagnostic)
+        }
+        val superType = firClass.superTypeRefs.single()
+        if (superType is FirResolvedTypeRef) {
+            return superType.type
+        }
+        return null
+    }
+}
+
+
+private fun FirTypeRef.hideLocalTypes(): FirTypeRef {
+    if (this !is FirResolvedTypeRef) return this
+    val type = ConeLocalTypeSubstitutor().substituteOrSelf(type)
+    if (type is ConeClassErrorType) {
+        return buildErrorTypeRef {
+            diagnostic = type.diagnostic
+        }
+    }
+    return buildResolvedTypeRef {
+        this.source = this@hideLocalTypes.source
+        this.type = type
+    }
+}
