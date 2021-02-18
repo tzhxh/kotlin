@@ -181,6 +181,31 @@ class FirDiagnosticsHandler(testServices: TestServices) : FirAnalysisHandler(tes
             Renderers.renderCallInfo(fqName, getTypeOfCall(reference, resolvedSymbol))
         }
 
+    private fun DebugInfoDiagnosticFactory1.getPositionedElement(sourceElement: FirSourceElement): FirSourceElement {
+        return if (this === DebugInfoDiagnosticFactory1.CALL
+            && sourceElement.elementType == KtNodeTypes.DOT_QUALIFIED_EXPRESSION
+        ) {
+            if (sourceElement is FirPsiSourceElement<*>) {
+                val psi = (sourceElement.psi as KtDotQualifiedExpression).selectorExpression
+                psi?.let { FirRealPsiSourceElement(it) } ?: sourceElement
+            } else {
+                val tree = sourceElement.treeStructure
+                val selector = tree.selector(sourceElement.lighterASTNode)
+                if (selector == null) {
+                    sourceElement
+                } else {
+                    val startDelta = tree.getStartOffset(selector) - tree.getStartOffset(sourceElement.lighterASTNode)
+                    val endDelta = tree.getEndOffset(selector) - tree.getEndOffset(sourceElement.lighterASTNode)
+                    FirLightSourceElement(
+                        selector, sourceElement.startOffset + startDelta, sourceElement.endOffset + endDelta, tree
+                    )
+                }
+            }
+        } else {
+            sourceElement
+        }
+    }
+
     private inline fun DebugInfoDiagnosticFactory1.createDebugInfoDiagnostic(
         element: FirElement,
         diagnosedRangesToDiagnosticNames: Map<IntRange, Set<String>>,
@@ -194,29 +219,7 @@ class FirDiagnosticsHandler(testServices: TestServices) : FirAnalysisHandler(tes
         if (sourceElement.elementType == KtNodeTypes.LAMBDA_ARGUMENT || sourceElement.elementType == KtNodeTypes.BLOCK) return null
         // Unfortunately I had to repeat positioning strategy logic here
         // (we need to check diagnostic range before applying it)
-        val positionedElement =
-            if (this === DebugInfoDiagnosticFactory1.CALL
-                && sourceElement.elementType == KtNodeTypes.DOT_QUALIFIED_EXPRESSION
-            ) {
-                if (sourceElement is FirPsiSourceElement<*>) {
-                    val psi = (sourceElement.psi as KtDotQualifiedExpression).selectorExpression
-                    psi?.let { FirRealPsiSourceElement(it) } ?: sourceElement
-                } else {
-                    val tree = sourceElement.treeStructure
-                    val selector = tree.selector(sourceElement.lighterASTNode)
-                    if (selector == null) {
-                        sourceElement
-                    } else {
-                        val startDelta = tree.getStartOffset(selector) - tree.getStartOffset(sourceElement.lighterASTNode)
-                        val endDelta = tree.getEndOffset(selector) - tree.getEndOffset(sourceElement.lighterASTNode)
-                        FirLightSourceElement(
-                            selector, sourceElement.startOffset + startDelta, sourceElement.endOffset + endDelta, tree
-                        )
-                    }
-                }
-            } else {
-                sourceElement
-            }
+        val positionedElement = getPositionedElement(sourceElement)
         if (diagnosedRangesToDiagnosticNames[positionedElement.startOffset..positionedElement.endOffset]?.contains(this.name) != true) {
             return null
         }
