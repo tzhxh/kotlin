@@ -16,6 +16,7 @@ import org.jetbrains.kotlin.fir.firLookupTracker
 import org.jetbrains.kotlin.fir.scopes.PACKAGE_MEMBER
 import org.jetbrains.kotlin.fir.scopes.impl.FirPackageMemberScope
 import org.jetbrains.kotlin.fir.symbols.AbstractFirBasedSymbol
+import org.jetbrains.kotlin.fir.visibilityChecker
 import org.jetbrains.kotlin.name.Name
 import java.util.LinkedHashSet
 
@@ -56,6 +57,21 @@ object FirConflictsChecker : FirBasicDeclarationChecker() {
         val packageMemberScope: FirPackageMemberScope = context.sessionHolder.scopeSession.getOrBuild(file.packageFqName, PACKAGE_MEMBER) {
             FirPackageMemberScope(file.packageFqName, context.sessionHolder.session)
         }
+        val visibilityChecker = context.session.visibilityChecker
+
+        fun collectClassLikeConflicts(declarationName: Name) {
+            packageMemberScope.processClassifiersByNameWithSubstitution(declarationName) { symbol, _ ->
+                (symbol.fir as? FirDeclaration)?.let { declaration ->
+                    if (declaration !is FirMemberDeclaration ||
+                        (declaration is FirSymbolOwner<*> &&
+                        visibilityChecker.isVisible(declaration, context.session, file, emptyList(), dispatchReceiver = null))
+                    ) {
+                        inspector.collect(declaration)
+                    }
+                }
+            }
+        }
+
         for (topLevelDeclaration in file.declarations) {
             inspector.collect(topLevelDeclaration)
             var declarationName: Name? = null
@@ -63,30 +79,29 @@ object FirConflictsChecker : FirBasicDeclarationChecker() {
                 is FirSimpleFunction -> {
                     declarationName = topLevelDeclaration.name
                     packageMemberScope.processFunctionsByName(declarationName) {
-                        inspector.collect(it.fir)
+                        if (visibilityChecker.isVisible(it.fir, context.session, file, emptyList(), dispatchReceiver = null)) {
+                            inspector.collect(it.fir)
+                        }
                     }
                 }
                 is FirVariable<*> -> {
                     declarationName = topLevelDeclaration.name
                     packageMemberScope.processPropertiesByName(declarationName) {
-                        inspector.collect(it.fir)
+                        val declaration = it.fir
+                        if (declaration !is FirMemberDeclaration ||
+                            visibilityChecker.isVisible(declaration, context.session, file, emptyList(), dispatchReceiver = null)
+                        ) {
+                            inspector.collect(it.fir)
+                        }
                     }
                 }
                 is FirRegularClass -> {
                     declarationName = topLevelDeclaration.name
-                    packageMemberScope.processClassifiersByNameWithSubstitution(declarationName) { symbol, _ ->
-                        (symbol.fir as? FirDeclaration)?.let {
-                            inspector.collect(it)
-                        }
-                    }
+                    collectClassLikeConflicts(declarationName)
                 }
                 is FirTypeAlias -> {
                     declarationName = topLevelDeclaration.name
-                    packageMemberScope.processClassifiersByNameWithSubstitution(declarationName) { symbol, _ ->
-                        (symbol.fir as? FirDeclaration)?.let {
-                            inspector.collect(it)
-                        }
-                    }
+                    collectClassLikeConflicts(declarationName)
                 }
             }
             if (lookupTracker != null && declarationName != null) {
