@@ -258,9 +258,11 @@ class RawFirBuilderTotalKotlinTestCase : AbstractRawFirBuilderTestCase() {
                         it is KtStringTemplateExpression && it.entries.size <= 1 ||
                         it is KtDestructuringDeclaration && it.parent is KtParameter ||
                         it is KtArrayAccessExpression && it.parent is KtBinaryExpression ||
+                        it is KtCallExpression && it.parent is KtQualifiedExpression ||
                         it is KtNameReferenceExpression &&
                         (it.parent is KtUserType || it.parent is KtInstanceExpressionWithLabel ||
-                                it.parent is KtValueArgumentName || it.parent is KtTypeConstraint) ||
+                                it.parent is KtValueArgumentName || it.parent is KtTypeConstraint ||
+                                it.parent is KtQualifiedExpression || it.parent is KtCallExpression) ||
                         it.getStrictParentOfType<KtPackageDirective>() != null ||
                         it.getStrictParentOfType<KtImportDirective>() != null ||
                         (it is KtPropertyAccessor && !it.hasBody()) ||
