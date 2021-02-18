@@ -39,7 +39,7 @@ public annotation class Metadata(
         level = DeprecationLevel.WARNING,
     )
     @get:JvmName("bv")
-    val bytecodeVersion: IntArray = [],
+    val bytecodeVersion: IntArray = [1, 0, 3],
     /**
      * Metadata in a custom format. The format may be different (or even absent) for different kinds.
      */
