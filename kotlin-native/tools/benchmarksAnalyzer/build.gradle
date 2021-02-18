@@ -3,7 +3,7 @@ buildscript {
 
     ext {
         def properties = new java.util.Properties()
-        properties.load(new java.io.FileReader(project.file("${project.findProperty("kotlin_root")}/gradle.properties")))
+        properties.load(new java.io.FileReader(project.file("$rootBuildDirectory/../gradle.properties")))
         properties.each { k, v->
             project.logger.info("${project.name} $k: $v")
             set(k as String, v)
