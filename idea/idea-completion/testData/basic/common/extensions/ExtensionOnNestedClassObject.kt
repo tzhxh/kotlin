@@ -1,3 +1,5 @@
+// FIR_COMPARISON
+
 package foo
 
 class A {
