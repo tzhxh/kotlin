@@ -37,13 +37,15 @@ private class JvmOverloadsAnnotationLowering(val context: JvmBackendContext) : C
 
     override fun lower(irClass: IrClass) {
         val functions = irClass.declarations.filterIsInstance<IrFunction>().filter {
-            it.hasAnnotation(JVM_OVERLOADS_FQ_NAME)
+            it.hasAnnotation(JVM_OVERLOADS_FQ_NAME) && !it.isFakeOverride()
         }
 
         functions.forEach {
             generateWrappers(it, irClass)
         }
     }
+
+    private fun IrFunction.isFakeOverride() = this is IrSimpleFunction && isFakeOverride
 
     private fun generateWrappers(target: IrFunction, irClass: IrClass) {
         val numDefaultParameters = target.valueParameters.count { it.defaultValue != null }
