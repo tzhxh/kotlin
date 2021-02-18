@@ -310,8 +310,7 @@ private class ElementsToShortenCollector(private val shorteningContext: FirShort
     }
 
     private fun processPropertyReference(resolvedNamedReference: FirResolvedNamedReference) {
-        val referenceExpression = resolvedNamedReference.psi as? KtNameReferenceExpression
-        val qualifiedProperty = referenceExpression?.getDotQualifiedExpressionForSelector() ?: return
+        val qualifiedProperty = resolvedNamedReference.psi as? KtDotQualifiedExpression ?: return
 
         val propertyId = (resolvedNamedReference.resolvedSymbol as? FirCallableSymbol<*>)?.callableId ?: return
 
@@ -326,8 +325,8 @@ private class ElementsToShortenCollector(private val shorteningContext: FirShort
     private fun processFunctionCall(functionCall: FirFunctionCall) {
         if (!canBePossibleToDropReceiver(functionCall)) return
 
-        val callExpression = functionCall.psi as? KtCallExpression ?: return
-        val qualifiedCallExpression = callExpression.getDotQualifiedExpressionForSelector() ?: return
+        val qualifiedCallExpression = functionCall.psi as? KtDotQualifiedExpression ?: return
+        val callExpression = qualifiedCallExpression.selectorExpression as? KtCallExpression ?: return
 
         val calleeReference = functionCall.calleeReference
         val callableId = findUnambiguousReferencedCallableId(calleeReference) ?: return
