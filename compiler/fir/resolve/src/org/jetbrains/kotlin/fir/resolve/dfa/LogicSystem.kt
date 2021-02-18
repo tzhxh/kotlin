@@ -59,6 +59,8 @@ abstract class LogicSystem<FLOW : Flow>(protected val context: ConeInferenceCont
 
     protected abstract fun getImplicationsWithVariable(flow: FLOW, variable: DataFlowVariable): Collection<Implication>
 
+    protected abstract fun ConeKotlinType.isAcceptableForSmartcast(): Boolean
+
     // ------------------------------- Callbacks for updating implicit receiver stack -------------------------------
 
     abstract fun processUpdatedReceiverVariable(flow: FLOW, variable: RealVariable)
@@ -150,7 +152,11 @@ abstract class LogicSystem<FLOW : Flow>(protected val context: ConeInferenceCont
             }
         }
         val result = mutableSetOf<ConeKotlinType>()
-        context.commonSuperTypeOrNull(intersectedTypes)?.let { result.add(it) }
+        context.commonSuperTypeOrNull(intersectedTypes)?.let {
+            if (it.isAcceptableForSmartcast()) {
+                result.add(it)
+            }
+        }
         return result
     }
 
