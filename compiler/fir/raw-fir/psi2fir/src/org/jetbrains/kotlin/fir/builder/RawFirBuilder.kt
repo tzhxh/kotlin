@@ -1971,9 +1971,10 @@ class RawFirBuilder(
         }
 
         override fun visitQualifiedExpression(expression: KtQualifiedExpression, data: Unit): FirElement {
+            val sourceElement = expression.toFirSourceElement()
             val selector = expression.selectorExpression
                 ?: return buildErrorExpression(
-                    expression.toFirSourceElement(), ConeSimpleDiagnostic("Qualified expression without selector", DiagnosticKind.Syntax),
+                    sourceElement, ConeSimpleDiagnostic("Qualified expression without selector", DiagnosticKind.Syntax),
                 )
             val firSelector = selector.toFirExpression("Incorrect selector expression")
             if (firSelector is FirQualifiedAccess) {
@@ -1984,8 +1985,9 @@ class RawFirBuilder(
                 }
 
                 firSelector.replaceExplicitReceiver(receiver)
+                firSelector.calleeReference.replaceSource(sourceElement)
             }
-            firSelector.replaceSource(expression.toFirSourceElement())
+            firSelector.replaceSource(sourceElement)
             return firSelector
         }
 

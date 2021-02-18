@@ -492,14 +492,16 @@ class ExpressionsConverter(
             }
         }
 
+        val sourceElement = dotQualifiedExpression.toFirSourceElement()
         (firSelector as? FirQualifiedAccess)?.let {
             if (isSafe) {
                 return it.wrapWithSafeCall(firReceiver!!)
             }
 
             it.replaceExplicitReceiver(firReceiver)
+            it.calleeReference.replaceSource(sourceElement)
         }
-        firSelector.replaceSource(dotQualifiedExpression.toFirSourceElement())
+        firSelector.replaceSource(sourceElement)
         return firSelector
     }
 
