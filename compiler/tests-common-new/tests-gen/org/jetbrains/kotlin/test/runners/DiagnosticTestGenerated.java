@@ -24404,6 +24404,12 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
             }
 
             @Test
+            @TestMetadata("internalTypeInInternalVal.kt")
+            public void testInternalTypeInInternalVal() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/sealed/internalTypeInInternalVal.kt");
+            }
+
+            @Test
             @TestMetadata("kt44316.kt")
             public void testKt44316() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/sealed/kt44316.kt");
