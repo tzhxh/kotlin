@@ -206,8 +206,8 @@ private fun FirDeclaration.isCollectable() = when (this) {
 /**
  * Collects FirDeclarations for further analysis.
  */
-class FirDeclarationInspector(
-    private val presenter: FirDeclarationPresenter = FirDefaultDeclarationPresenter()
+open class FirDeclarationInspector(
+    protected val presenter: FirDeclarationPresenter = FirDefaultDeclarationPresenter()
 ) {
     val otherDeclarations = mutableMapOf<String, LinkedHashSet<FirDeclaration>>()
     val functionDeclarations = mutableMapOf<String, LinkedHashSet<FirSimpleFunction>>()
@@ -221,6 +221,10 @@ class FirDeclarationInspector(
             return collectFunction(declaration)
         }
 
+        collectNonFunctionDeclaration(declaration)
+    }
+
+    protected open fun collectNonFunctionDeclaration(declaration: FirDeclaration) {
         val key = when (declaration) {
             is FirRegularClass -> presenter.represent(declaration)
             is FirTypeAlias -> presenter.represent(declaration)
@@ -228,23 +232,34 @@ class FirDeclarationInspector(
             else -> return
         }
 
-        var value = otherDeclarations[key]
+        collectNonFunctionDeclaration(otherDeclarations, key, declaration)
+    }
+
+    protected fun collectNonFunctionDeclaration(
+        target: MutableMap<String, LinkedHashSet<FirDeclaration>>, key: String, declaration: FirDeclaration
+    ) {
+        var value = target[key]
 
         if (value == null) {
             value = LinkedHashSet()
-            otherDeclarations[key] = value
+            target[key] = value
         }
 
         value.add(declaration)
     }
 
-    private fun collectFunction(declaration: FirSimpleFunction) {
-        val key = presenter.represent(declaration)
-        var value = functionDeclarations[key]
+    protected open fun collectFunction(declaration: FirSimpleFunction) {
+        collectFunction(functionDeclarations, presenter.represent(declaration), declaration)
+    }
+
+    protected fun collectFunction(
+        target: MutableMap<String, LinkedHashSet<FirSimpleFunction>>, key: String, declaration: FirSimpleFunction
+    ) {
+        var value = target[key]
 
         if (value == null) {
             value = LinkedHashSet()
-            functionDeclarations[key] = value
+            target[key] = value
         }
 
         value.add(declaration)

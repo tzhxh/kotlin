@@ -21,8 +21,41 @@ import org.jetbrains.kotlin.name.Name
 import java.util.LinkedHashSet
 
 object FirConflictsChecker : FirBasicDeclarationChecker() {
+
+    private class DeclarationInspector : FirDeclarationInspector() {
+
+        val otherActualDeclarations = mutableMapOf<String, LinkedHashSet<FirDeclaration>>()
+        val functionActualDeclarations = mutableMapOf<String, LinkedHashSet<FirSimpleFunction>>()
+        val otherExpectDeclarations = mutableMapOf<String, LinkedHashSet<FirDeclaration>>()
+        val functionExpectDeclarations = mutableMapOf<String, LinkedHashSet<FirSimpleFunction>>()
+
+        override fun collectNonFunctionDeclaration(declaration: FirDeclaration) {
+            val target = when {
+                declaration is FirMemberDeclaration && declaration.status.isExpect -> otherExpectDeclarations
+                declaration is FirMemberDeclaration && declaration.status.isActual -> otherActualDeclarations
+                else -> otherDeclarations
+            }
+            val key = when (declaration) {
+                is FirRegularClass -> presenter.represent(declaration)
+                is FirTypeAlias -> presenter.represent(declaration)
+                is FirProperty -> presenter.represent(declaration)
+                else -> return
+            }
+            collectNonFunctionDeclaration(target, key, declaration)
+        }
+
+        override fun collectFunction(declaration: FirSimpleFunction) {
+            val target = when {
+                declaration.status.isExpect -> functionExpectDeclarations
+                declaration.status.isActual -> functionActualDeclarations
+                else -> functionDeclarations
+            }
+            collectFunction(target, presenter.represent(declaration), declaration)
+        }
+    }
+
     override fun check(declaration: FirDeclaration, context: CheckerContext, reporter: DiagnosticReporter) {
-        val inspector = FirDeclarationInspector()
+        val inspector = DeclarationInspector()
 
         when (declaration) {
             is FirFile -> checkFile(declaration, inspector, context)
@@ -30,17 +63,30 @@ object FirConflictsChecker : FirBasicDeclarationChecker() {
             else -> return
         }
 
-        inspector.functionDeclarations.forEachNonSingle { it, symbols ->
-            reporter.reportOn(it.source, FirErrors.CONFLICTING_OVERLOADS, symbols, context)
+        fun reportConflictingOverload(declaration: FirDeclaration, symbols: Collection<AbstractFirBasedSymbol<*>>) {
+            reporter.reportOn(declaration.source, FirErrors.CONFLICTING_OVERLOADS, symbols, context)
         }
 
-        inspector.otherDeclarations.forEachNonSingle { it, symbols ->
-            reporter.reportOn(it.source, FirErrors.REDECLARATION, symbols, context)
+        fun reportRedeclaration(declaration: FirDeclaration, symbols: Collection<AbstractFirBasedSymbol<*>>) {
+            reporter.reportOn(declaration.source, FirErrors.REDECLARATION, symbols, context)
         }
+
+        inspector.functionDeclarations.forEachNonSingle(emptyMap(), ::reportConflictingOverload)
+        inspector.functionExpectDeclarations.forEachNonSingle(inspector.functionDeclarations, ::reportConflictingOverload)
+        inspector.functionActualDeclarations.forEachNonSingle(inspector.functionDeclarations, ::reportConflictingOverload)
+
+        inspector.otherDeclarations.forEachNonSingle(emptyMap(), ::reportRedeclaration)
+        inspector.otherExpectDeclarations.forEachNonSingle(inspector.otherDeclarations, ::reportRedeclaration)
+        inspector.otherActualDeclarations.forEachNonSingle(inspector.otherDeclarations, ::reportRedeclaration)
     }
 
-    private fun Map<String, LinkedHashSet<*>>.forEachNonSingle(action: (FirDeclaration, Collection<AbstractFirBasedSymbol<*>>) -> Unit) {
-        for (value in values) {
+    private fun Map<String, LinkedHashSet<*>>.forEachNonSingle(
+        additionalDeclarations: Map<String, LinkedHashSet<*>>,
+        action: (FirDeclaration, Collection<AbstractFirBasedSymbol<*>>) -> Unit
+    ) {
+        for (entry in entries) {
+            val additionalValue = additionalDeclarations[entry.key]
+            val value = if (additionalValue?.isEmpty() == false) entry.value + additionalValue else entry.value
             if (value.size > 1) {
                 val symbols = value.mapNotNull { (it as? FirSymbolOwner<*>)?.symbol }
 
@@ -64,7 +110,7 @@ object FirConflictsChecker : FirBasicDeclarationChecker() {
                 (symbol.fir as? FirDeclaration)?.let { declaration ->
                     if (declaration !is FirMemberDeclaration ||
                         (declaration is FirSymbolOwner<*> &&
-                        visibilityChecker.isVisible(declaration, context.session, file, emptyList(), dispatchReceiver = null))
+                                visibilityChecker.isVisible(declaration, context.session, file, emptyList(), dispatchReceiver = null))
                     ) {
                         inspector.collect(declaration)
                     }
